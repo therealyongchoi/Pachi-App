@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Counter & Converter">
+    <title>Counter & Points Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .counter-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .counter-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 100px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .counter-button {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .counter-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .counter-button:active {
+            transform: translateY(0);
+        }
+
+        .converter-section {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .currency-output {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(40, 167, 69, 0.2);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reset-button {
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 480px) {
+            .counter-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .counter-display {
+                font-size: 2.5rem;
+            }
+            
+            .counter-button {
+                font-size: 1.2rem;
+                padding: 12px 25px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pachi</h1>
+        
+        <div class="counter-section">
+            <h2>Counter</h2>
+        </div>
+        
+        <div class="counter-section">
+            <div class="counter-display" id="counter">0</div>
+            <button class="counter-button" onclick="incrementCounter()">+1</button>
+            <button class="reset-button" onclick="resetCounter()">Reset</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Points to Currency Converter</h2>
+        
+        <div class="converter-section">
+            <div class="input-group">
+                <label for="pointsInput">Enter Points:</label>
+                <input type="number" id="pointsInput" placeholder="Enter points..." oninput="convertPoints()" min="0">
+            </div>
+            
+            <div class="currency-output" id="currencyOutput">
+                Enter points to see VND value
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let counter = 0;
+
+        function incrementCounter() {
+            counter++;
+            document.getElementById('counter').textContent = counter;
+        }
+
+        function resetCounter() {
+            counter = 0;
+            document.getElementById('counter').textContent = counter;
+        }
+
+        function convertPoints() {
+            const pointsInput = document.getElementById('pointsInput');
+            const currencyOutput = document.getElementById('currencyOutput');
+            const points = parseFloat(pointsInput.value) || 0;
+            
+            if (points === 0) {
+                currencyOutput.textContent = 'Enter points to see VND value';
+                return;
+            }
+            
+            // 2000 points = 500,000 VND
+            const vndValue = (points / 2000) * 500000;
+            
+            // Format the number nicely
+            let formattedValue;
+            if (vndValue >= 1000000) {
+                formattedValue = (vndValue / 1000000).toFixed(1) + 'M';
+            } else if (vndValue >= 1000) {
+                formattedValue = (vndValue / 1000).toFixed(1) + 'K';
+            } else {
+                formattedValue = vndValue.toFixed(0);
+            }
+            
+            currencyOutput.textContent = `${formattedValue} VND`;
+        }
+
+        // Allow Enter key to work in the input field
+        document.getElementById('pointsInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertPoints();
+            }
+        });
+    </script>
+</body>
+</html>
