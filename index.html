@@ -53,6 +53,7 @@
             justify-content: center;
             gap: 20px;
             margin-bottom: 20px;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
         }
 
         .counter-display {
@@ -187,7 +188,9 @@
         
         <div class="counter-section">
             <div class="counter-display" id="counter">0</div>
-            <button class="counter-button" onclick="incrementCounter()">+1</button>
+            <button class="counter-button" onclick="incrementCounter(1)">+1</button>
+            <button class="counter-button" onclick="incrementCounter(5)">+5</button>
+            <button class="counter-button" onclick="incrementCounter(10)">+10</button>
             <button class="reset-button" onclick="resetCounter()">Reset</button>
         </div>
     </div>
@@ -229,8 +232,8 @@
     <script>
         let counter = 0;
 
-        function incrementCounter() {
-            counter++;
+        function incrementCounter(value) {
+            counter += value;
             document.getElementById('counter').textContent = counter;
         }
 
