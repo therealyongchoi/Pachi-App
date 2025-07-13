@@ -124,7 +124,7 @@
         }
 
         .currency-output {
-            font-size: 2rem;
+            font-size: 1.5rem; /* Adjusted for two lines of text */
             font-weight: bold;
             color: #28a745;
             margin-top: 20px;
@@ -134,8 +134,10 @@
             border: 2px solid rgba(40, 167, 69, 0.2);
             min-height: 80px;
             display: flex;
+            flex-direction: column; /* To stack the two lines of text */
             align-items: center;
             justify-content: center;
+            gap: 10px; /* Space between the two lines */
         }
 
         .reset-button {
@@ -191,16 +193,35 @@
     </div>
 
     <div class="container">
-        <h2>Points to Currency Converter</h2>
+        <h2>Points to VND Converter</h2>
         
         <div class="converter-section">
             <div class="input-group">
-                <label for="pointsInput">Enter Points:</label>
-                <input type="number" id="pointsInput" placeholder="Enter points..." oninput="convertPoints()" min="0">
+                <label for="pointsInputVND">Enter Points:</label>
+                <input type="number" id="pointsInputVND" placeholder="Enter points..." oninput="convertPointsVND()" min="0">
             </div>
             
-            <div class="currency-output" id="currencyOutput">
+            <div class="currency-output" id="currencyOutputVND">
                 Enter points to see VND value
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Points to JPY Converter</h2>
+        
+        <div class="converter-section">
+            <div class="input-group">
+                <label for="pointsInputJPY">Enter Points:</label>
+                <input type="number" id="pointsInputJPY" placeholder="Enter points..." oninput="convertPointsJPY()" min="0">
+            </div>
+            <div class="input-group">
+                <label for="deductionPercentage">Deduction Percentage (%):</label>
+                <input type="number" id="deductionPercentage" value="0" min="0" max="100" oninput="convertPointsJPY()">
+            </div>
+            
+            <div class="currency-output" id="currencyOutputJPY">
+                Enter points to see JPY value
             </div>
         </div>
     </div>
@@ -218,9 +239,21 @@
             document.getElementById('counter').textContent = counter;
         }
 
-        function convertPoints() {
-            const pointsInput = document.getElementById('pointsInput');
-            const currencyOutput = document.getElementById('currencyOutput');
+        function formatCurrency(value, currencySymbol) {
+            let formattedValue;
+            if (value >= 1000000) {
+                formattedValue = (value / 1000000).toFixed(1) + 'M';
+            } else if (value >= 1000) {
+                formattedValue = (value / 1000).toFixed(1) + 'K';
+            } else {
+                formattedValue = value.toFixed(0);
+            }
+            return `${formattedValue} ${currencySymbol}`;
+        }
+
+        function convertPointsVND() {
+            const pointsInput = document.getElementById('pointsInputVND');
+            const currencyOutput = document.getElementById('currencyOutputVND');
             const points = parseFloat(pointsInput.value) || 0;
             
             if (points === 0) {
@@ -231,23 +264,49 @@
             // 2000 points = 500,000 VND
             const vndValue = (points / 2000) * 500000;
             
-            // Format the number nicely
-            let formattedValue;
-            if (vndValue >= 1000000) {
-                formattedValue = (vndValue / 1000000).toFixed(1) + 'M';
-            } else if (vndValue >= 1000) {
-                formattedValue = (vndValue / 1000).toFixed(1) + 'K';
-            } else {
-                formattedValue = vndValue.toFixed(0);
-            }
-            
-            currencyOutput.textContent = `${formattedValue} VND`;
+            currencyOutput.textContent = formatCurrency(vndValue, 'VND');
         }
 
-        // Allow Enter key to work in the input field
-        document.getElementById('pointsInput').addEventListener('keypress', function(e) {
+        function convertPointsJPY() {
+            const pointsInput = document.getElementById('pointsInputJPY');
+            const deductionInput = document.getElementById('deductionPercentage');
+            const currencyOutput = document.getElementById('currencyOutputJPY');
+            
+            const points = parseFloat(pointsInput.value) || 0;
+            const deductionPercentage = parseFloat(deductionInput.value) || 0;
+            
+            if (points === 0) {
+                currencyOutput.innerHTML = 'Enter points to see JPY value';
+                return;
+            }
+            
+            // Each point is 4 JPY
+            const jpyValue = points * 4;
+            
+            const deductedValue = jpyValue * (1 - (deductionPercentage / 100));
+
+            const formattedJPY = formatCurrency(jpyValue, 'JPY');
+            const formattedDeductedJPY = formatCurrency(deductedValue, 'JPY');
+            
+            currencyOutput.innerHTML = `<div>Straight: ${formattedJPY}</div><div>After Deduction: ${formattedDeductedJPY}</div>`;
+        }
+
+        // Allow Enter key to work in the input fields
+        document.getElementById('pointsInputVND').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                convertPoints();
+                convertPointsVND();
+            }
+        });
+
+        document.getElementById('pointsInputJPY').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertPointsJPY();
+            }
+        });
+
+        document.getElementById('deductionPercentage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertPointsJPY();
             }
         });
     </script>
