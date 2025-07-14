@@ -7,6 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Counter & Converter">
     <title data-i18n="appTitle">Counter & Points Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -794,6 +795,165 @@
             color: #ecf0f1;
         }
 
+        /* ROI Section Styles */
+        .roi-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .roi-summary-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        body.dark-mode .roi-summary-item {
+            background: rgba(44, 62, 80, 0.8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .roi-summary-item strong {
+            display: block;
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+        body.dark-mode .roi-summary-item strong {
+            color: #bdc3c7;
+        }
+
+        .roi-summary-item span {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        body.dark-mode .roi-summary-item span {
+            color: #ecf0f1;
+        }
+
+        .roi-summary-item.profit span {
+            color: #28a745; /* Green for profit */
+        }
+        .roi-summary-item.loss span {
+            color: #dc3545; /* Red for loss */
+        }
+
+        .roi-time-period-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .roi-time-period-button {
+            padding: 10px 20px;
+            background: #ccc;
+            color: #333;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .roi-time-period-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        body.dark-mode .roi-time-period-button {
+            background: #34495e;
+            color: #ecf0f1;
+        }
+        body.dark-mode .roi-time-period-button.active {
+            background: linear-gradient(135deg, #4a5d8f, #5d4a8f);
+        }
+
+        .roi-chart-container {
+            width: 100%;
+            max-width: 550px; /* Adjust max width for chart */
+            height: 300px; /* Fixed height for chart */
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        body.dark-mode .roi-chart-container {
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* ROI Currency Toggle */
+        .roi-currency-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: fit-content; /* Adjust width to content */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .roi-currency-toggle .toggle-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: white;
+            border-radius: 25px;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .roi-currency-toggle.jpy-active .toggle-background {
+            transform: translateX(100%);
+        }
+
+        .roi-currency-toggle button {
+            flex: 1;
+            padding: 10px 15px;
+            background: transparent;
+            border: none;
+            color: #333; /* Default text color for ROI toggle buttons */
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+
+        .roi-currency-toggle button.active {
+            color: #667eea; /* Color when active and background is white */
+        }
+
+        body.dark-mode .roi-currency-toggle {
+            background: rgba(44, 62, 80, 0.2);
+            border: 1px solid rgba(44, 62, 80, 0.3);
+        }
+        body.dark-mode .roi-currency-toggle .toggle-background {
+            background: #1a252f;
+        }
+        body.dark-mode .roi-currency-toggle button {
+            color: #ecf0f1;
+        }
+        body.dark-mode .roi-currency-toggle button.active {
+            color: #a7c4ff;
+        }
+
 
         @media (max-width: 480px) {
             .counter-main-section {
@@ -848,6 +1008,13 @@
                 flex-direction: column; /* Stack label and select vertically */
                 align-items: flex-start; /* Align items to the start */
             }
+
+            .roi-summary {
+                grid-template-columns: 1fr; /* Stack summary items on small screens */
+            }
+            .roi-time-period-selector {
+                flex-wrap: wrap; /* Allow buttons to wrap */
+            }
         }
     </style>
 </head>
@@ -872,11 +1039,12 @@
         <div class="sidebar-menu-item" id="menuVNDConversion" data-i18n="menuVNDConversion">VND Conversion</div>
         <div class="sidebar-menu-item" id="menuJPYConversion" data-i18n="menuJPYConversion">JPY Conversion</div>
         <div class="sidebar-menu-item" id="menuWinningsHistory" data-i18n="menuWinningsHistory">Winnings History</div>
+        <div class="sidebar-menu-item" id="menuROITracker" data-i18n="menuROITracker">ROI Tracker</div>
         
         <div class="sidebar-menu-item" id="menuSettings">
             <!-- Cogwheel Icon SVG -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                <path d="M19.4 12.98c.04-.32.06-.65.06-.98s-.02-.66-.06-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.1-.65-1.7-.82l-.34-2.61c-.05-.24-.26-.42-.5-.42h-4c-.25 0-.46.18-.5.42l-.34 2.61c-.6.17-1.18.43-1.7.82l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.06.65-.06.98s.02.66.06.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.31.61.22l2.49-1c.52.39 1.1.65 1.7.82l.34 2.61c.05.24.26.42.5.42h4c.25 0 .46-.18.5-.42l.34-2.61c.6-.17 1.18-.43 1.7-.82l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                <path d="M19.4 12.98c.04-.32.06-.65.06-.98s-.02-.66-.06-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.1-.65-1.7-.82l-.34-2.61c-.05-.24-.26-.42-.5-.42h-4c-.25 0-.46.18-.5.42l-.34 2.61c-.6.17-1.18.43-1.7.82l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.06.65-.06.98s-.02-.66.06.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.31.61.22l2.49-1c.52.39 1.1.65 1.7.82l.34 2.61c.05.24.26.42.5.42h4c.25 0 .46-.18.5-.42l.34-2.61c.6-.17 1.18-.43 1.7-.82l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
             </svg>
             <span data-i18n="menuSettingsText">Settings</span>
         </div>
@@ -956,6 +1124,7 @@
             <h2 data-i18n="jpyConverterTitle">Points to JPY Converter</h2>
             
             <div class="converter-section">
+                <!-- Corrected order: Points Input first, then Deduction Percentage -->
                 <div class="input-group">
                     <label for="pointsInputJPY" data-i18n="enterPointsLabel">Enter Points:</label>
                     <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0" inputmode="none">
@@ -1003,6 +1172,47 @@
             <button class="remove-history-button" id="removeCheckedWinningsButton" data-i18n="removeHistoryButton">Remove Checked Winnings</button>
             <div id="winningsHistoryList" class="history-list">
                 <p data-i18n="loadingHistory">Loading winnings history...</p>
+            </div>
+        </div>
+
+        <!-- ROI Tracker Section -->
+        <div id="roiTrackerSection" class="content-section container">
+            <h2 id="roiTrackerTitle" data-i18n="roiTrackerTitle">ROI Tracker</h2>
+            
+            <!-- New ROI Currency Toggle -->
+            <div class="roi-currency-toggle" id="roiCurrencyToggle">
+                <div class="toggle-background"></div>
+                <button id="roiToggleVND" data-i18n="vndShort">VND</button>
+                <button id="roiToggleJPY" data-i18n="jpyShort">JPY</button>
+            </div>
+
+            <div class="roi-summary">
+                <div class="roi-summary-item">
+                    <strong data-i18n="totalInvestment">Total Investment</strong>
+                    <span id="totalInvestmentROI">0 VND</span>
+                </div>
+                <div class="roi-summary-item">
+                    <strong data-i18n="totalWinnings">Total Winnings</strong>
+                    <span id="totalWinningsROI">0 VND</span>
+                </div>
+                <div class="roi-summary-item" id="netProfitLossSummary">
+                    <strong data-i18n="netProfitLoss">Net Profit/Loss</strong>
+                    <span id="netProfitLossROI">0 VND</span>
+                </div>
+                <div class="roi-summary-item" id="overallROISummary">
+                    <strong data-i18n="overallROI">Overall ROI</strong>
+                    <span id="overallROIPercentage">0.00%</span>
+                </div>
+            </div>
+
+            <div class="roi-time-period-selector">
+                <button class="roi-time-period-button active" data-period="daily" data-i18n="daily">Daily</button>
+                <button class="roi-time-period-button" data-period="weekly" data-i18n="weekly">Weekly</button>
+                <button class="roi-time-period-button" data-period="monthly" data-i18n="monthly">Monthly</button>
+            </div>
+
+            <div class="roi-chart-container">
+                <canvas id="roiChart"></canvas>
             </div>
         </div>
 
@@ -1060,6 +1270,12 @@
         let firebaseInitialized = false; // Flag to track Firebase initialization
         let deductionPercentageValue = parseFloat(localStorage.getItem('deductionPercentage')) || 10.0; // Default to 10.0%
 
+        // ROI specific data
+        let allSessionsData = [];
+        let allWinningsData = [];
+        let roiChartInstance = null; // To hold the Chart.js instance
+        let currentRoiCurrency = localStorage.getItem('selectedRoiCurrency') || 'VND'; // Default ROI currency
+
         // Debounce function for notes saving
         function debounce(func, delay) {
             let timeout;
@@ -1077,9 +1293,10 @@
                 menuCounter: "Counter & History",
                 menuVNDConversion: "VND Conversion",
                 menuJPYConversion: "JPY Conversion",
-                menuWinningsHistory: "Winnings History", // New translation
-                menuSettings: "Settings", // This will be the text for the menu item
-                menuSettingsText: "Settings", // This will be the text next to the icon
+                menuWinningsHistory: "Winnings History",
+                menuROITracker: "ROI Tracker",
+                menuSettings: "Settings",
+                menuSettingsText: "Settings",
                 pachiTitle: "Pachi",
                 counterTitle: "Counter",
                 resetCounterButton: "Reset Session Counter",
@@ -1115,17 +1332,27 @@
                 firebaseConfigMessage: "History will be saved to your configured Firebase project.",
                 vndShort: "VND",
                 jpyShort: "JPY",
-                saveWinningsButton: "Save Winnings", // New translation
-                winningsHistoryTitle: "Winnings History", // New translation
-                noWinningsHistory: "No winnings history available.", // New translation
-                notesPlaceholder: "Add notes here..." // Placeholder for notes
+                saveWinningsButton: "Save Winnings",
+                winningsHistoryTitle: "Winnings History",
+                noWinningsHistory: "No winnings history available.",
+                notesPlaceholder: "Add notes here...",
+                roiTrackerTitle: "ROI Tracker", // Updated for dynamic currency
+                totalInvestment: "Total Investment",
+                totalWinnings: "Total Winnings",
+                netProfitLoss: "Net Profit/Loss",
+                overallROI: "Overall ROI",
+                daily: "Daily",
+                weekly: "Weekly",
+                monthly: "Monthly",
+                noROIData: "No ROI data available for this period."
             },
             ko: {
                 appTitle: "카운터 & 포인트 변환기",
                 menuCounter: "카운터 & 기록",
                 menuVNDConversion: "VND 변환",
                 menuJPYConversion: "JPY 변환",
-                menuWinningsHistory: "수익 기록", // New translation
+                menuWinningsHistory: "수익 기록",
+                menuROITracker: "ROI 추적기",
                 menuSettings: "설정",
                 menuSettingsText: "설정",
                 pachiTitle: "파치",
@@ -1163,17 +1390,27 @@
                 firebaseConfigMessage: "기록은 구성된 Firebase 프로젝트에 저장됩니다.",
                 vndShort: "VND",
                 jpyShort: "JPY",
-                saveWinningsButton: "수익 저장", // New translation
-                winningsHistoryTitle: "수익 기록", // New translation
-                noWinningsHistory: "수익 기록이 없습니다.", // New translation
-                notesPlaceholder: "여기에 메모 추가..." // Placeholder for notes
+                saveWinningsButton: "수익 저장",
+                winningsHistoryTitle: "수익 기록",
+                noWinningsHistory: "수익 기록이 없습니다.",
+                notesPlaceholder: "여기에 메모 추가...",
+                roiTrackerTitle: "ROI 추적기", // Updated for dynamic currency
+                totalInvestment: "총 투자",
+                totalWinnings: "총 수익",
+                netProfitLoss: "순이익/손실",
+                overallROI: "전체 ROI",
+                daily: "일별",
+                weekly: "주별",
+                monthly: "월별",
+                noROIData: "이 기간에 대한 ROI 데이터가 없습니다."
             },
             ja: {
                 appTitle: "カウンター＆ポイント変換",
                 menuCounter: "カウンター＆履歴",
                 menuVNDConversion: "VND変換",
                 menuJPYConversion: "JPY変換",
-                menuWinningsHistory: "勝利履歴", // New translation
+                menuWinningsHistory: "勝利履歴",
+                menuROITracker: "ROIトラッカー",
                 menuSettings: "設定",
                 menuSettingsText: "設定",
                 pachiTitle: "パチ",
@@ -1211,10 +1448,19 @@
                 firebaseConfigMessage: "履歴は設定されたFirebaseプロジェクトに保存されます。",
                 vndShort: "VND",
                 jpyShort: "JPY",
-                saveWinningsButton: "勝利を保存", // New translation
-                winningsHistoryTitle: "勝利履歴", // New translation
-                noWinningsHistory: "勝利履歴がありません。", // New translation
-                notesPlaceholder: "ここにメモを追加..." // Placeholder for notes
+                saveWinningsButton: "勝利を保存",
+                winningsHistoryTitle: "勝利履歴",
+                noWinningsHistory: "勝利履歴がありません。",
+                notesPlaceholder: "ここにメモを追加...",
+                roiTrackerTitle: "ROIトラッカー",
+                totalInvestment: "総投資",
+                totalWinnings: "総勝利",
+                netProfitLoss: "純損益",
+                overallROI: "全体ROI",
+                daily: "日次",
+                weekly: "週次",
+                monthly: "月次",
+                noROIData: "この期間のROIデータはありません。"
             }
         };
 
@@ -1256,6 +1502,8 @@
             if (firebaseInitialized && userId && db) {
                 loadSessionHistory();
                 loadWinningsHistory(); // Also reload winnings history
+                // Pass the current ROI currency to updateROIData
+                updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
             } else {
                  // Update initial loading/error messages if Firebase isn't ready yet
                 const historyListElement = document.getElementById('sessionHistoryList');
@@ -1274,6 +1522,20 @@
                         winningsHistoryListElement.innerHTML = `<p>${translations[lang].firebaseInitError}</p>`;
                     }
                 }
+                const roiChartContainer = document.querySelector('.roi-chart-container');
+                if (roiChartContainer) {
+                    roiChartContainer.innerHTML = `<p style="text-align: center; color: #777;">${translations[lang].noROIData}</p>`;
+                }
+                const roiSummary = document.querySelector('.roi-summary');
+                if (roiSummary) {
+                    // Update summary spans based on currentRoiCurrency
+                    const roiSymbol = currentRoiCurrency === 'VND' ? translations[lang].vndShort : translations[lang].jpyShort;
+                    document.getElementById('totalInvestmentROI').textContent = `0 ${roiSymbol}`;
+                    document.getElementById('totalWinningsROI').textContent = `0 ${roiSymbol}`;
+                    document.getElementById('netProfitLossROI').textContent = `0 ${roiSymbol}`;
+                    document.getElementById('overallROIPercentage').textContent = '0.00%';
+                }
+                document.getElementById('roiTrackerTitle').textContent = `${translations[lang].roiTrackerTitle} (${currentRoiCurrency})`;
             }
         }
 
@@ -1321,6 +1583,9 @@
                         await loadWinningsHistory(); // Load winnings history too
                         updateCounterCurrencyDisplay();
                         setCounterCurrency(currentCounterCurrency); // Ensure correct button is active and counter value is set
+                        // Load ROI data initially based on currentRoiCurrency
+                        updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
+                        setROICurrency(currentRoiCurrency); // Set ROI currency toggle state
                     } else {
                         console.log("No user authenticated. Attempting anonymous sign-in or custom token sign-in.");
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -1366,22 +1631,22 @@
             
             try {
                 const querySnapshot = await getDocs(q);
-                let history = [];
+                allSessionsData = []; // Clear previous data
                 querySnapshot.forEach((doc) => {
-                    history.push({
+                    allSessionsData.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
 
                 // Sort history chronologically (oldest at top, newest at bottom) in JavaScript
-                history.sort((a, b) => {
+                allSessionsData.sort((a, b) => {
                     const tsA = a.timestamp ? a.timestamp.toDate().getTime() : 0;
                     const tsB = b.timestamp ? b.timestamp.toDate().getTime() : 0;
                     return tsA - tsB;
                 });
 
-                displayHistory(history, 'sessionHistoryList', 'history-checkbox', updateSessionNote); // This handles empty history by showing "No session history available."
+                displayHistory(allSessionsData, 'sessionHistoryList', 'history-checkbox', updateSessionNote); // This handles empty history by showing "No session history available."
                 console.log("Session history loaded successfully.");
 
             } catch (e) {
@@ -1409,21 +1674,21 @@
 
             try {
                 const querySnapshot = await getDocs(q);
-                let winnings = [];
+                allWinningsData = []; // Clear previous data
                 querySnapshot.forEach((doc) => {
-                    winnings.push({
+                    allWinningsData.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
 
-                winnings.sort((a, b) => {
+                allWinningsData.sort((a, b) => {
                     const tsA = a.timestamp ? a.timestamp.toDate().getTime() : 0;
                     const tsB = b.timestamp ? b.timestamp.toDate().getTime() : 0;
                     return tsA - tsB;
                 });
 
-                displayHistory(winnings, 'winningsHistoryList', 'winnings-checkbox', updateWinningsNote);
+                displayHistory(allWinningsData, 'winningsHistoryList', 'winnings-checkbox', updateWinningsNote);
                 console.log("Winnings history loaded successfully.");
 
             } catch (e) {
@@ -1447,11 +1712,18 @@
             }
 
             // Use the currently displayed counter value for saving
-            let pointsToSave = 0;
+            let pointsToSave = 0; // This is the raw counter value (number of increments)
+            let convertedVNDValue = 0;
+            let convertedJPYValue = 0;
+
             if (currentCounterCurrency === 'VND') {
                 pointsToSave = vndSessionCounter;
+                convertedVNDValue = vndSessionCounter * 500000; // 1 increment = 500,000 VND
+                convertedJPYValue = vndSessionCounter * 1000; // Store JPY equivalent for completeness, 1 increment = 1,000 JPY
             } else { // JPY
                 pointsToSave = jpySessionCounter;
+                convertedVNDValue = jpySessionCounter * 500000; // Store VND equivalent for completeness
+                convertedJPYValue = jpySessionCounter * 1000; // 1 increment = 1,000 JPY
             }
 
             if (pointsToSave === 0) {
@@ -1461,23 +1733,21 @@
 
             const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
 
-            // Calculate converted values for both VND and JPY based on current counter
-            const convertedVND = pointsToSave * 500000; // 1 point = 500,000 VND
-            const convertedJPY = pointsToSave * 1000;   // 1 point = 1,000 JPY
-
             try {
                 await addDoc(sessionCollectionRef, {
                     timestamp: serverTimestamp(),
-                    points: pointsToSave,
+                    points: pointsToSave, // Raw counter value (number of increments)
                     currencyAtSave: currentCounterCurrency, // Record which currency was active when saved
-                    convertedVND: convertedVND,
-                    convertedJPY: convertedJPY,
+                    convertedVND: convertedVNDValue, // Actual VND monetary value
+                    convertedJPY: convertedJPYValue, // Actual JPY monetary value
                     notes: "" // Initialize notes field as empty
                 });
                 console.log("Session saved successfully!");
                 // Optionally reset the counter after saving
                 resetCounter(); // This will reset the currently active counter
                 loadSessionHistory(); // Reload history to show the new entry
+                // Update ROI for the currently selected ROI currency
+                updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
             } catch (e) {
                 console.error("Error saving session:", e);
             }
@@ -1500,11 +1770,11 @@
 
             if (currencyType === 'VND') {
                 points = parseFloat(document.getElementById('pointsInputVND').value) || 0;
-                convertedAmount = (points / 2000) * 500000;
+                convertedAmount = (points / 2000) * 500000; // 2000 points = 500,000 VND
                 currencySymbol = 'VND';
             } else if (currencyType === 'JPY') {
                 points = parseFloat(document.getElementById('pointsInputJPY').value) || 0;
-                const jpyValue = points * 4;
+                const jpyValue = points * 4; // 1 point = 4 JPY
                 convertedAmount = jpyValue * (1 - (deductionPercentageValue / 100));
                 currencySymbol = 'JPY';
             }
@@ -1535,6 +1805,8 @@
                     convertPointsJPY(); // Update display
                 }
                 loadWinningsHistory(); // Reload winnings history to show the new entry
+                // Update ROI for the currently selected ROI currency
+                updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
             } catch (e) {
                 console.error("Error saving winnings:", e);
             }
@@ -1633,6 +1905,7 @@
                     } else if (item.currencyAtSave === 'JPY') {
                         currencyDisplay = formatCurrency(item.convertedJPY, 'JPY');
                     } else {
+                        // Fallback in case currencyAtSave is missing or unexpected
                         currencyDisplay = `VND: ${formatCurrency(item.convertedVND, 'VND')} / JPY: ${formatCurrency(item.convertedJPY, 'JPY')}`;
                     }
                     detailsSpan.textContent = `${translations[currentLanguage].points}: ${item.points} | ${currencyDisplay}`;
@@ -1697,6 +1970,8 @@
                 } else if (collectionName === 'pachinkoWinnings') {
                     loadWinningsHistory(); // Reload winnings history
                 }
+                // Update ROI for the currently selected ROI currency
+                updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
             } catch (e) {
                 console.error("Error removing items:", e);
             }
@@ -1778,7 +2053,7 @@
             }
 
             updateMenuCurrencyVisibility(); // Call new function to update menu visibility
-            showSection('counterSection'); // Always go back to counter page after currency selection
+            // Removed the showSection('counterSection'); call here
         }
 
         function updateCounterCurrencyDisplay() {
@@ -1787,12 +2062,10 @@
             let symbol;
 
             if (currentCounterCurrency === 'VND') {
-                // 1 point = 500,000 VND
-                value = counter * 500000;
+                value = counter * 500000; // 1 increment = 500,000 VND
                 symbol = 'VND';
             } else { // JPY
-                // 1 point = 1,000 JPY
-                value = counter * 1000;
+                value = counter * 1000; // 1 increment = 1,000 JPY
                 symbol = 'JPY';
             }
             convertedCounterValueElement.textContent = formatCurrency(value, symbol);
@@ -1914,6 +2187,11 @@
             } else if (sectionId === 'winningsHistorySection') { // New section
                 document.getElementById('menuWinningsHistory').classList.add('active');
                 loadWinningsHistory(); // Load history when tab is opened
+            } else if (sectionId === 'roiTrackerSection') { // New ROI section
+                document.getElementById('menuROITracker').classList.add('active');
+                // Ensure ROI currency toggle is set correctly and then update ROI data
+                setROICurrency(currentRoiCurrency);
+                updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
             } else if (sectionId === 'settingsSection') {
                 document.getElementById('menuSettings').classList.add('active');
             }
@@ -1986,6 +2264,251 @@
             updateDeductionDisplay();
         }
 
+        // --- ROI Tracker Logic ---
+        // Removed JPY_TO_VND_RATE as cross-currency conversion is no longer needed for ROI
+
+        function setROICurrency(currency) {
+            currentRoiCurrency = currency;
+            localStorage.setItem('selectedRoiCurrency', currency); // Save ROI currency preference
+
+            // Update ROI currency toggle active state
+            const roiToggleVND = document.getElementById('roiToggleVND');
+            const roiToggleJPY = document.getElementById('roiToggleJPY');
+            const roiCurrencyToggleDiv = document.getElementById('roiCurrencyToggle');
+
+            if (currency === 'VND') {
+                roiToggleVND.classList.add('active');
+                roiToggleJPY.classList.remove('active');
+                roiCurrencyToggleDiv.classList.remove('jpy-active');
+                document.getElementById('roiTrackerTitle').textContent = `${translations[currentLanguage].roiTrackerTitle} (VND)`;
+            } else {
+                roiToggleVND.classList.remove('active');
+                roiToggleJPY.classList.add('active');
+                roiCurrencyToggleDiv.classList.add('jpy-active');
+                document.getElementById('roiTrackerTitle').textContent = `${translations[currentLanguage].roiTrackerTitle} (JPY)`;
+            }
+            // Update ROI data for the newly selected currency and current period
+            updateROIData(document.querySelector('.roi-time-period-button.active').dataset.period, currentRoiCurrency);
+        }
+
+
+        function calculateROI(roiCurrency) {
+            let totalInvestment = 0;
+            let totalWinnings = 0;
+            const roiSymbol = roiCurrency === 'VND' ? translations[currentLanguage].vndShort : translations[currentLanguage].jpyShort;
+
+            allSessionsData.forEach(session => {
+                if (session.currencyAtSave === roiCurrency) {
+                    if (roiCurrency === 'VND') {
+                        totalInvestment += session.convertedVND || 0;
+                    } else { // JPY
+                        totalInvestment += session.convertedJPY || 0;
+                    }
+                }
+            });
+
+            allWinningsData.forEach(winnings => {
+                if (winnings.currencyType === roiCurrency) {
+                    totalWinnings += winnings.convertedAmount || 0;
+                }
+            });
+
+            const netProfitLoss = totalWinnings - totalInvestment;
+            let overallROI = 0;
+            if (totalInvestment > 0) {
+                overallROI = (netProfitLoss / totalInvestment) * 100;
+            }
+
+            // Update summary display
+            document.getElementById('totalInvestmentROI').textContent = formatCurrency(totalInvestment, roiSymbol);
+            document.getElementById('totalWinningsROI').textContent = formatCurrency(totalWinnings, roiSymbol);
+            
+            const netProfitLossElement = document.getElementById('netProfitLossROI');
+            netProfitLossElement.textContent = formatCurrency(netProfitLoss, roiSymbol);
+            const netProfitLossSummary = document.getElementById('netProfitLossSummary');
+            if (netProfitLoss >= 0) {
+                netProfitLossSummary.classList.remove('loss');
+                netProfitLossSummary.classList.add('profit');
+            } else {
+                netProfitLossSummary.classList.remove('profit');
+                netProfitLossSummary.classList.add('loss');
+            }
+
+            const overallROIElement = document.getElementById('overallROIPercentage');
+            overallROIElement.textContent = `${overallROI.toFixed(2)}%`;
+            const overallROISummary = document.getElementById('overallROISummary');
+            if (overallROI >= 0) {
+                overallROISummary.classList.remove('loss');
+                overallROISummary.classList.add('profit');
+            } else {
+                overallROISummary.classList.remove('profit');
+                overallROISummary.classList.add('loss');
+            }
+        }
+
+        function groupDataByPeriod(period, roiCurrency) {
+            const groupedData = {}; // Key: date string, Value: { investment: 0, winnings: 0 }
+
+            // Process sessions data (investment proxy)
+            allSessionsData.forEach(session => {
+                if (!session.timestamp || session.currencyAtSave !== roiCurrency) return;
+                const date = new Date(session.timestamp.toDate());
+                let key;
+
+                if (period === 'daily') {
+                    key = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                } else if (period === 'weekly') {
+                    // Get the start of the week (Sunday)
+                    const startOfWeek = new Date(date);
+                    startOfWeek.setDate(date.getDate() - date.getDay());
+                    key = startOfWeek.toISOString().split('T')[0];
+                } else if (period === 'monthly') {
+                    key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`; // YYYY-MM
+                }
+
+                if (!groupedData[key]) {
+                    groupedData[key] = { investment: 0, winnings: 0 };
+                }
+                if (roiCurrency === 'VND') {
+                    groupedData[key].investment += session.convertedVND || 0;
+                } else { // JPY
+                    groupedData[key].investment += session.convertedJPY || 0;
+                }
+            });
+
+            // Process winnings data (return)
+            allWinningsData.forEach(winnings => {
+                if (!winnings.timestamp || winnings.currencyType !== roiCurrency) return;
+                const date = new Date(winnings.timestamp.toDate());
+                let key;
+
+                if (period === 'daily') {
+                    key = date.toISOString().split('T')[0];
+                } else if (period === 'weekly') {
+                    const startOfWeek = new Date(date);
+                    startOfWeek.setDate(date.getDate() - date.getDay());
+                    key = startOfWeek.toISOString().split('T')[0];
+                } else if (period === 'monthly') {
+                    key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                }
+
+                if (!groupedData[key]) {
+                    groupedData[key] = { investment: 0, winnings: 0 };
+                }
+                groupedData[key].winnings += winnings.convertedAmount || 0;
+            });
+
+            // Sort keys chronologically
+            const sortedKeys = Object.keys(groupedData).sort();
+
+            const labels = [];
+            const netProfitLossData = [];
+
+            sortedKeys.forEach(key => {
+                labels.push(key);
+                const data = groupedData[key];
+                netProfitLossData.push(data.winnings - data.investment);
+            });
+
+            return { labels, netProfitLossData };
+        }
+
+        function updateChart(period, roiCurrency) {
+            const roiTrackerSection = document.getElementById('roiTrackerSection');
+            // Only attempt to draw the chart if the ROI section is currently active
+            if (!roiTrackerSection || !roiTrackerSection.classList.contains('active')) {
+                if (roiChartInstance) {
+                    roiChartInstance.destroy(); // Destroy if it exists but section is not active
+                    roiChartInstance = null;
+                }
+                // Clear the chart container content and display a message if needed, but don't try to getContext
+                const roiChartContainer = document.querySelector('.roi-chart-container');
+                if (roiChartContainer) {
+                    roiChartContainer.innerHTML = `<p style="text-align: center; color: #777;">${translations[currentLanguage].noROIData}</p>`;
+                }
+                return; // Exit if the section is not active
+            }
+
+            const { labels, netProfitLossData } = groupDataByPeriod(period, roiCurrency);
+            let ctx = null; // Initialize ctx to null
+            const roiChartElement = document.getElementById('roiChart');
+
+            if (roiChartInstance) {
+                roiChartInstance.destroy(); // Destroy existing chart instance
+                roiChartInstance = null; // Clear the instance
+            }
+
+            if (labels.length === 0) {
+                const roiChartContainer = document.querySelector('.roi-chart-container');
+                if (roiChartContainer) {
+                    roiChartContainer.innerHTML = `<p style="text-align: center; color: #777;">${translations[currentLanguage].noROIData}</p>`;
+                }
+                return;
+            } else {
+                // Ensure canvas is present if it was removed by a previous "no data" message
+                const roiChartContainer = document.querySelector('.roi-chart-container');
+                if (!document.getElementById('roiChart')) { // If canvas was removed
+                    roiChartContainer.innerHTML = '<canvas id="roiChart"></canvas>'; // Re-add canvas
+                }
+                // Get context after ensuring canvas is in DOM
+                ctx = document.getElementById('roiChart').getContext('2d');
+            }
+
+            const roiSymbol = roiCurrency === 'VND' ? translations[currentLanguage].vndShort : translations[currentLanguage].jpyShort;
+
+            roiChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${translations[currentLanguage].netProfitLoss} (${roiSymbol})`,
+                        data: netProfitLossData,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#ecf0f1' : '#333'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#ecf0f1' : '#333'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#ecf0f1' : '#333',
+                                callback: function(value) {
+                                    return formatCurrency(value, roiSymbol);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateROIData(period, roiCurrency) {
+            calculateROI(roiCurrency); // Update summary
+            updateChart(period, roiCurrency); // Update chart
+        }
+
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
@@ -2032,6 +2555,7 @@
                 convertPointsJPY(); // Recalculate on section switch
             });
             document.getElementById('menuWinningsHistory').addEventListener('click', () => showSection('winningsHistorySection')); // New menu item
+            document.getElementById('menuROITracker').addEventListener('click', () => showSection('roiTrackerSection')); // New ROI menu item
             document.getElementById('menuSettings').addEventListener('click', () => showSection('settingsSection'));
 
             // Sidebar Currency Toggle
@@ -2062,10 +2586,32 @@
             document.querySelector('.deduction-selector [data-action="increment-01"]').addEventListener('click', () => adjustDeduction(0.1));
             document.querySelector('.deduction-selector [data-action="increment-1"]').addEventListener('click', () => adjustDeduction(1));
 
+            // ROI Time Period Selector Buttons
+            document.querySelectorAll('.roi-time-period-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.roi-time-period-button').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    updateROIData(this.dataset.period, currentRoiCurrency); // Pass currentRoiCurrency
+                });
+            });
+
+            // ROI Currency Toggle Buttons
+            document.getElementById('roiToggleVND').addEventListener('click', () => setROICurrency('VND'));
+            document.getElementById('roiToggleJPY').addEventListener('click', () => setROICurrency('JPY'));
+
 
             // Settings Event Listeners
             document.getElementById('darkModeSelect').addEventListener('change', (event) => {
                 setDarkModePreference(event.target.value);
+                // Re-render chart to update colors if dark mode changes
+                if (roiChartInstance) {
+                    roiChartInstance.options.plugins.legend.labels.color = document.body.classList.contains('dark-mode') ? '#ecf0f1' : '#333';
+                    roiChartInstance.options.scales.x.grid.color = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+                    roiChartInstance.options.scales.x.ticks.color = document.body.classList.contains('dark-mode') ? '#ecf0f1' : '#333';
+                    roiChartInstance.options.scales.y.grid.color = document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+                    roiChartInstance.options.scales.y.ticks.color = document.body.classList.contains('dark-mode') ? '#ecf0f1' : '#333';
+                    roiChartInstance.update();
+                }
             });
 
             document.getElementById('darkModeColorSchemeSelect').addEventListener('change', (event) => {
