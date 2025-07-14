@@ -448,11 +448,19 @@
 
         // Function to load session history from Firestore
         async function loadSessionHistory() {
-            if (!userId) return;
+            const historyListElement = document.getElementById('sessionHistoryList');
+            historyListElement.innerHTML = '<p>Loading history...</p>'; // Ensure loading message is always set initially
+
+            if (!userId || !db) { // Check if userId and db are available
+                console.warn("Firebase or User ID not initialized. Waiting to load history.");
+                historyListElement.innerHTML = '<p>Please wait, initializing Firebase...</p>'; // More specific message
+                return;
+            }
 
             const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
-            // Changed order to 'asc' for chronological sorting (oldest at top, newest at bottom)
-            const q = query(sessionCollectionRef, orderBy("timestamp", "asc"));
+            // Removed orderBy from query to avoid potential index issues in some environments.
+            // Sorting will now be done client-side.
+            const q = query(sessionCollectionRef); 
             
             try {
                 const querySnapshot = await getDocs(q);
@@ -464,10 +472,18 @@
                     });
                 });
 
-                displayHistory(history);
+                // Sort history chronologically (oldest at top, newest at bottom) in JavaScript
+                history.sort((a, b) => {
+                    const tsA = a.timestamp ? a.timestamp.toDate().getTime() : 0;
+                    const tsB = b.timestamp ? b.timestamp.toDate().getTime() : 0;
+                    return tsA - tsB;
+                });
+
+                displayHistory(history); // This handles empty history by showing "No session history available."
 
             } catch (e) {
                 console.error("Error loading session history:", e);
+                historyListElement.innerHTML = '<p>Error loading history. Please try again. Check console for details.</p>';
             }
         }
 
