@@ -22,6 +22,8 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
+            position: relative; /* Needed for sidebar positioning */
+            overflow-x: hidden; /* Prevent horizontal scroll when sidebar is out */
         }
 
         .container {
@@ -294,6 +296,104 @@
             margin-top: 5px; /* Space between details and notes */
         }
 
+        /* --- Menu Bar Styles --- */
+        .menu-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001; /* Above other content */
+            cursor: pointer;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-icon span {
+            display: block;
+            width: 30px;
+            height: 3px;
+            background: #333;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-icon.open span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .menu-icon.open span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-icon.open span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px; /* Width of the sidebar */
+            height: 100%;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            z-index: 1000;
+            transform: translateX(-100%); /* Initially hidden */
+            transition: transform 0.3s ease-in-out;
+            padding-top: 80px; /* Space for menu icon */
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.open {
+            transform: translateX(0); /* Slide in */
+        }
+
+        .sidebar-menu-item {
+            padding: 15px 20px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-menu-item.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-left: 5px solid white;
+            padding-left: 15px;
+        }
+
+        /* --- Content Sections --- */
+        .content-section {
+            display: none; /* Hide all content sections by default */
+            width: 100%;
+            padding-top: 60px; /* Space for fixed menu icon */
+        }
+
+        .content-section.active {
+            display: flex; /* Show active section */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Adjust body padding when sidebar is open to prevent content overlap */
+        body.sidebar-open {
+            padding-left: 270px; /* Sidebar width + gap */
+        }
+
         @media (max-width: 480px) {
             .counter-main-section {
                 gap: 15px;
@@ -320,73 +420,106 @@
             .history-details {
                 text-align: left; /* Align details to left on small screens */
             }
+
+            .sidebar {
+                width: 200px; /* Smaller sidebar on small screens */
+            }
+            body.sidebar-open {
+                padding-left: 220px; /* Adjusted padding */
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Pachi</h1>
-        
-        <div class="counter-main-section">
-            <h2>Counter</h2>
-
-            <div class="currency-toggle-row">
-                <button class="currency-toggle-button" id="toggleVND">VND</button>
-                <button class="currency-toggle-button" id="toggleJPY">JPY</button>
-            </div>
-        
-            <div class="counter-display" id="counter">0</div>
-            
-            <div class="counter-buttons-row">
-                <button class="counter-button" id="increment1">+1</button>
-                <button class="counter-button" id="increment5">+5</button>
-                <button class="counter-button" id="increment10">+10</button>
-            </div>
-            <button class="reset-button" id="resetCounterButton">Reset Session Counter</button>
-            <button class="save-button" id="saveSessionButton">Save Session</button>
-            <div class="currency-counter-display" id="convertedCounterValue">0 VND</div>
-        </div>
+    <!-- Hamburger Menu Icon -->
+    <div class="menu-icon" id="menuIcon">
+        <span></span>
+        <span></span>
+        <span></span>
     </div>
 
-    <div class="container">
-        <h2>Points to VND Converter</h2>
-        
-        <div class="converter-section">
-            <div class="input-group">
-                <label for="pointsInputVND">Enter Points:</label>
-                <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0">
+    <!-- Sidebar Menu -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-menu-item" id="menuCounter">Counter & History</div>
+        <div class="sidebar-menu-item" id="menuVNDConversion">VND Conversion</div>
+        <div class="sidebar-menu-item" id="menuJPYConversion">JPY Conversion</div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div id="mainContent">
+        <!-- Counter and Session History Section -->
+        <div id="counterSection" class="content-section active">
+            <div class="container">
+                <h1>Pachi</h1>
+                
+                <div class="counter-main-section">
+                    <h2>Counter</h2>
+
+                    <div class="currency-toggle-row">
+                        <button class="currency-toggle-button" id="toggleVND">VND</button>
+                        <button class="currency-toggle-button" id="toggleJPY">JPY</button>
+                    </div>
+                
+                    <div class="counter-display" id="counter">0</div>
+                    
+                    <div class="counter-buttons-row">
+                        <button class="counter-button" id="increment1">+1</button>
+                        <button class="counter-button" id="increment5">+5</button>
+                        <button class="counter-button" id="increment10">+10</button>
+                    </div>
+                    <button class="reset-button" id="resetCounterButton">Reset Session Counter</button>
+                    <button class="save-button" id="saveSessionButton">Save Session</button>
+                    <div class="currency-counter-display" id="convertedCounterValue">0 VND</div>
+                </div>
             </div>
-            
-            <div class="currency-output" id="currencyOutputVND">
-                Enter points to see VND value
+
+            <div class="container">
+                <h2>Session History</h2>
+                <button class="remove-history-button" id="removeCheckedHistoryButton">Remove Checked History</button>
+                <div id="sessionHistoryList" class="history-list">
+                    <p>Loading history...</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <h2>Points to JPY Converter</h2>
-        
-        <div class="converter-section">
-            <div class="input-group">
-                <label for="pointsInputJPY">Enter Points:</label>
-                <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0">
-            </div>
-            <div class="input-group">
-                <label for="deductionPercentage">Deduction Percentage (%):</label>
-                <input type="number" id="deductionPercentage" value="0" min="0" max="100">
-            </div>
-            
-            <div class="currency-output" id="currencyOutputJPY">
-                Enter points to see JPY value
+        <!-- Points to VND Converter Section -->
+        <div id="vndConversionSection" class="content-section">
+            <div class="container">
+                <h2>Points to VND Converter</h2>
+                
+                <div class="converter-section">
+                    <div class="input-group">
+                        <label for="pointsInputVND">Enter Points:</label>
+                        <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0">
+                    </div>
+                    
+                    <div class="currency-output" id="currencyOutputVND">
+                        Enter points to see VND value
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <h2>Session History</h2>
-        <button class="remove-history-button" id="removeCheckedHistoryButton">Remove Checked History</button>
-        <div id="sessionHistoryList" class="history-list">
-            <p>Loading history...</p>
+        <!-- Points to JPY Converter Section -->
+        <div id="jpyConversionSection" class="content-section">
+            <div class="container">
+                <h2>Points to JPY Converter</h2>
+                
+                <div class="converter-section">
+                    <div class="input-group">
+                        <label for="pointsInputJPY">Enter Points:</label>
+                        <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="deductionPercentage">Deduction Percentage (%):</label>
+                        <input type="number" id="deductionPercentage" value="0" min="0" max="100">
+                    </div>
+                    
+                    <div class="currency-output" id="currencyOutputJPY">
+                        Enter points to see JPY value
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -828,8 +961,52 @@
             currencyOutput.innerHTML = `<div>Straight: ${formattedJPY}</div><div>After Deduction: ${formattedDeductedJPY}</div>`;
         }
 
-        // Event Listeners for Counter Buttons
+        // --- Menu and Content Switching Logic ---
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update active state for sidebar menu items
+            document.querySelectorAll('.sidebar-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (sectionId === 'counterSection') {
+                document.getElementById('menuCounter').classList.add('active');
+            } else if (sectionId === 'vndConversionSection') {
+                document.getElementById('menuVNDConversion').classList.add('active');
+            } else if (sectionId === 'jpyConversionSection') {
+                document.getElementById('menuJPYConversion').classList.add('active');
+            }
+
+            // Close sidebar after selection
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('menuIcon').classList.remove('open');
+            document.body.classList.remove('sidebar-open');
+        }
+
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Menu Toggle
+            document.getElementById('menuIcon').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const menuIcon = document.getElementById('menuIcon');
+                sidebar.classList.toggle('open');
+                menuIcon.classList.toggle('open');
+                document.body.classList.toggle('sidebar-open');
+            });
+
+            // Menu Item Clicks
+            document.getElementById('menuCounter').addEventListener('click', () => showSection('counterSection'));
+            document.getElementById('menuVNDConversion').addEventListener('click', () => showSection('vndConversionSection'));
+            document.getElementById('menuJPYConversion').addEventListener('click', () => showSection('jpyConversionSection'));
+
+            // Initial section display
+            showSection('counterSection'); // Show Counter & History by default
+
+            // Counter Buttons
             document.getElementById('toggleVND').addEventListener('click', () => setCounterCurrency('VND'));
             document.getElementById('toggleJPY').addEventListener('click', () => setCounterCurrency('JPY'));
             
@@ -840,7 +1017,7 @@
             document.getElementById('saveSessionButton').addEventListener('click', saveSession); 
             document.getElementById('removeCheckedHistoryButton').addEventListener('click', removeCheckedHistory);
 
-            // Event Listeners for Converter Inputs
+            // Converter Inputs
             document.getElementById('pointsInputVND').addEventListener('input', convertPointsVND);
             document.getElementById('pointsInputVND').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
