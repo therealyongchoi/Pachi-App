@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Counter & Converter">
-    <title>Counter & Points Converter</title>
+    <title data-i18n="appTitle">Counter & Points Converter</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,101 @@
             gap: 30px;
             position: relative; /* Needed for sidebar positioning */
             overflow-x: hidden; /* Prevent horizontal scroll when sidebar is out */
+            color: #333; /* Default text color */
+            transition: background 0.3s ease, color 0.3s ease;
         }
+
+        /* Dark Mode Base Styles - will be overridden by specific color schemes */
+        body.dark-mode {
+            color: #ecf0f1; /* Light text color in dark mode */
+        }
+
+        body.dark-mode .container {
+            background: rgba(44, 62, 80, 0.95); /* Default dark container bg */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode h1, body.dark-mode h2 {
+            color: #ecf0f1;
+        }
+
+        body.dark-mode .counter-display {
+            background: rgba(102, 126, 234, 0.2);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            color: #a7c4ff;
+        }
+
+        body.dark-mode .currency-counter-display {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            color: #90ee90;
+        }
+
+        body.dark-mode label {
+            color: #bdc3c7;
+        }
+
+        body.dark-mode input[type="number"],
+        body.dark-mode .history-notes-textbox {
+            background: #34495e;
+            border-color: #4a647c;
+            color: #ecf0f1;
+        }
+
+        body.dark-mode input[type="number"]:focus {
+            border-color: #85a8f9;
+            box-shadow: 0 0 0 3px rgba(133, 168, 249, 0.3);
+        }
+
+        body.dark-mode .currency-output {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            color: #90ee90;
+        }
+
+        body.dark-mode .history-list {
+            background: rgba(44, 62, 80, 0.8);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .history-item {
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        body.dark-mode .history-number,
+        body.dark-mode .history-details {
+            color: #ecf0f1;
+        }
+
+        body.dark-mode .history-datetime {
+            color: #bdc3c7;
+        }
+
+        body.dark-mode .menu-icon {
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        body.dark-mode .menu-icon span {
+            background: #ecf0f1;
+        }
+
+        body.dark-mode .sidebar {
+            background: rgba(52, 73, 94, 0.8); /* Adjusted for frosted glass effect */
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
+        }
+
+        body.dark-mode .sidebar-menu-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        body.dark-mode .sidebar-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        body.dark-mode .sidebar-menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
 
         .container {
             background: rgba(255, 255, 255, 0.95);
@@ -32,6 +126,9 @@
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
+            width: 100%; /* Ensure it takes full available width */
+            max-width: 600px; /* Consistent max-width for all containers */
+            margin: 0 auto; /* Center the container */
         }
 
         h1 {
@@ -43,10 +140,10 @@
         }
 
         h2 {
+            text-align: center;
             color: #555;
             margin-bottom: 20px;
             font-size: 1.5rem;
-            text-align: center;
         }
 
         /* Main counter section layout */
@@ -342,7 +439,7 @@
             left: 0;
             width: 250px; /* Width of the sidebar */
             height: 100%;
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: rgba(118, 75, 162, 0.8); /* Semi-transparent background for frosted glass */
             z-index: 1000;
             transform: translateX(-100%); /* Initially hidden */
             transition: transform 0.3s ease-in-out;
@@ -350,6 +447,8 @@
             box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
         }
 
         .sidebar.open {
@@ -364,6 +463,15 @@
             cursor: pointer;
             transition: background 0.2s ease;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; /* For icon alignment */
+            align-items: center;
+        }
+
+        .sidebar-menu-item svg {
+            margin-right: 10px; /* Space between icon and text */
+            width: 20px;
+            height: 20px;
+            fill: white; /* Icon color */
         }
 
         .sidebar-menu-item:hover {
@@ -376,11 +484,77 @@
             padding-left: 15px;
         }
 
+        /* Push settings to bottom */
+        #menuSettings {
+            margin-top: auto; /* Pushes this item to the bottom */
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* Add a top border */
+        }
+
+        /* Currency Toggle in Sidebar */
+        .sidebar-currency-toggle {
+            display: flex;
+            margin: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-currency-toggle .toggle-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: white;
+            border-radius: 25px;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-currency-toggle.jpy-active .toggle-background {
+            transform: translateX(100%);
+        }
+
+        .sidebar-currency-toggle button {
+            flex: 1;
+            padding: 10px 15px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1; /* Ensure text is above background */
+            transition: color 0.3s ease;
+        }
+
+        .sidebar-currency-toggle button.active {
+            color: #667eea; /* Color when active and background is white */
+        }
+
+        body.dark-mode .sidebar-currency-toggle .toggle-background {
+            background: #1a252f; /* Darker background for toggle in dark mode */
+        }
+        body.dark-mode .sidebar-currency-toggle button.active {
+            color: #a7c4ff; /* Lighter color for active text in dark mode */
+        }
+
+
         /* --- Content Sections --- */
+        #mainContent {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            align-items: center; /* Center content sections */
+        }
+
         .content-section {
             display: none; /* Hide all content sections by default */
             width: 100%;
-            padding-top: 60px; /* Space for fixed menu icon */
+            padding-top: 0; /* Containers handle their own padding */
         }
 
         .content-section.active {
@@ -393,6 +567,66 @@
         body.sidebar-open {
             padding-left: 270px; /* Sidebar width + gap */
         }
+
+        /* Settings specific styles */
+        #settingsSection h2 {
+            margin-bottom: 30px; /* More space below settings title */
+        }
+
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            gap: 15px; /* Added gap between label and select */
+        }
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+        .settings-option label {
+            font-weight: 600;
+            margin-bottom: 0; /* Override default label margin */
+            flex-shrink: 0; /* Prevent label from shrinking */
+            text-align: left; /* Ensure label text is left-aligned */
+            flex-basis: 40%; /* Give labels a fixed basis to align */
+            max-width: 40%; /* Prevent labels from getting too wide */
+        }
+
+        /* Dropdown for Dark Mode */
+        .dark-mode-select, .language-select, .dark-mode-color-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            flex-grow: 1; /* Allow select boxes to grow */
+            text-align: right; /* Align text within select to the right */
+            -moz-appearance: none; /* Firefox */
+            -webkit-appearance: none; /* Chrome, Safari */
+            appearance: none; /* Standard */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6.8%200-13.2%203.6-16.4%209.6-3.2%206-3.2%2012.4%200%2018.4l128%20128c3.2%203.2%207.2%204.8%2011.2%204.8s8-1.6%2011.2-4.8l128-128c3.2-6%203.2-12.4%200-18.4z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px; /* Space for the custom arrow */
+        }
+        .dark-mode-select:focus, .language-select:focus, .dark-mode-color-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        body.dark-mode .dark-mode-select,
+        body.dark-mode .language-select,
+        body.dark-mode .dark-mode-color-select {
+            background-color: #34495e;
+            color: #ecf0f1;
+            border-color: #4a647c;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6.8%200-13.2%203.6-16.4%209.6-3.2%206-3.2%2012.4%200%2018.4l128%20128c3.2%203.2%207.2%204.8%2011.2%204.8s8-1.6%2011.2-4.8l128-128c3.2-6%203.2-12.4%200-18.4z%22%2F%3E%3C%2Fsvg%3E'); /* White arrow for dark mode */
+        }
+
 
         @media (max-width: 480px) {
             .counter-main-section {
@@ -427,6 +661,26 @@
             body.sidebar-open {
                 padding-left: 220px; /* Adjusted padding */
             }
+
+            .settings-option label {
+                flex-basis: auto; /* Remove fixed basis on small screens */
+                max-width: none; /* Remove max-width on small screens */
+                margin-right: 0; /* Remove margin-right on small screens */
+                width: 100%; /* Take full width */
+                text-align: left;
+                margin-bottom: 5px; /* Add some space below label */
+            }
+
+            .dark-mode-select, .language-select, .dark-mode-color-select {
+                width: 100%; /* Take full width */
+                max-width: none; /* Remove max-width on small screens */
+                text-align: left; /* Align text within select to the left on small screens */
+                padding-right: 15px; /* Adjust padding for arrow */
+            }
+            .settings-option {
+                flex-direction: column; /* Stack label and select vertically */
+                align-items: flex-start; /* Align items to the start */
+            }
         }
     </style>
 </head>
@@ -440,85 +694,126 @@
 
     <!-- Sidebar Menu -->
     <nav class="sidebar" id="sidebar">
-        <div class="sidebar-menu-item" id="menuCounter">Counter & History</div>
-        <div class="sidebar-menu-item" id="menuVNDConversion">VND Conversion</div>
-        <div class="sidebar-menu-item" id="menuJPYConversion">JPY Conversion</div>
+        <!-- New Currency Toggle in Sidebar - Moved to top -->
+        <div class="sidebar-currency-toggle" id="sidebarCurrencyToggle">
+            <div class="toggle-background"></div>
+            <button id="sidebarToggleVND" data-i18n="vndShort">VND</button>
+            <button id="sidebarToggleJPY" data-i18n="jpyShort">JPY</button>
+        </div>
+
+        <div class="sidebar-menu-item" id="menuCounter" data-i18n="menuCounter">Counter & History</div>
+        <div class="sidebar-menu-item" id="menuVNDConversion" data-i18n="menuVNDConversion">VND Conversion</div>
+        <div class="sidebar-menu-item" id="menuJPYConversion" data-i18n="menuJPYConversion">JPY Conversion</div>
+        
+        <div class="sidebar-menu-item" id="menuSettings">
+            <!-- Cogwheel Icon SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M19.4 12.98c.04-.32.06-.65.06-.98s-.02-.66-.06-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.1-.65-1.7-.82l-.34-2.61c-.05-.24-.26-.42-.5-.42h-4c-.25 0-.46.18-.5.42l-.34 2.61c-.6.17-1.18.43-1.7.82l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.06.65-.06.98s.02.66.06.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.31.61.22l2.49-1c.52.39 1.1.65 1.7.82l.34 2.61c.05.24.26.42.5.42h4c.25 0 .46-.18.5-.42l.34-2.61c.6-.17 1.18-.43 1.7-.82l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+            </svg>
+            <span data-i18n="menuSettingsText">Settings</span>
+        </div>
     </nav>
 
     <!-- Main Content Area -->
     <div id="mainContent">
         <!-- Counter and Session History Section -->
-        <div id="counterSection" class="content-section active">
-            <div class="container">
-                <h1>Pachi</h1>
-                
-                <div class="counter-main-section">
-                    <h2>Counter</h2>
+        <div id="counterSection" class="content-section active container">
+            <h1 data-i18n="pachiTitle">Pachi</h1>
+            
+            <div class="counter-main-section">
+                <h2 data-i18n="counterTitle">Counter</h2>
 
-                    <div class="currency-toggle-row">
-                        <button class="currency-toggle-button" id="toggleVND">VND</button>
-                        <button class="currency-toggle-button" id="toggleJPY">JPY</button>
-                    </div>
+                <!-- Currency toggle removed from here -->
+            
+                <div class="counter-display" id="counter">0</div>
                 
-                    <div class="counter-display" id="counter">0</div>
-                    
-                    <div class="counter-buttons-row">
-                        <button class="counter-button" id="increment1">+1</button>
-                        <button class="counter-button" id="increment5">+5</button>
-                        <button class="counter-button" id="increment10">+10</button>
-                    </div>
-                    <button class="reset-button" id="resetCounterButton">Reset Session Counter</button>
-                    <button class="save-button" id="saveSessionButton">Save Session</button>
-                    <div class="currency-counter-display" id="convertedCounterValue">0 VND</div>
+                <div class="counter-buttons-row">
+                    <button class="counter-button" id="increment1">+1</button>
+                    <button class="counter-button" id="increment5">+5</button>
+                    <button class="counter-button" id="increment10">+10</button>
                 </div>
+                <button class="reset-button" id="resetCounterButton" data-i18n="resetCounterButton">Reset Session Counter</button>
+                <button class="save-button" id="saveSessionButton" data-i18n="saveSessionButton">Save Session</button>
+                <div class="currency-counter-display" id="convertedCounterValue">0 VND</div>
             </div>
 
-            <div class="container">
-                <h2>Session History</h2>
-                <button class="remove-history-button" id="removeCheckedHistoryButton">Remove Checked History</button>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid rgba(0,0,0,0.1);">
+
+            <div>
+                <h2 data-i18n="sessionHistoryTitle">Session History</h2>
+                <button class="remove-history-button" id="removeCheckedHistoryButton" data-i18n="removeHistoryButton">Remove Checked History</button>
                 <div id="sessionHistoryList" class="history-list">
-                    <p>Loading history...</p>
+                    <p data-i18n="loadingHistory">Loading history...</p>
                 </div>
             </div>
         </div>
 
         <!-- Points to VND Converter Section -->
-        <div id="vndConversionSection" class="content-section">
-            <div class="container">
-                <h2>Points to VND Converter</h2>
+        <div id="vndConversionSection" class="content-section container">
+            <h2 data-i18n="vndConverterTitle">Points to VND Converter</h2>
+            
+            <div class="converter-section">
+                <div class="input-group">
+                    <label for="pointsInputVND" data-i18n="enterPointsLabel">Enter Points:</label>
+                    <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0">
+                </div>
                 
-                <div class="converter-section">
-                    <div class="input-group">
-                        <label for="pointsInputVND">Enter Points:</label>
-                        <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0">
-                    </div>
-                    
-                    <div class="currency-output" id="currencyOutputVND">
-                        Enter points to see VND value
-                    </div>
+                <div class="currency-output" id="currencyOutputVND">
+                    <span data-i18n="enterPointsVND">Enter points to see VND value</span>
                 </div>
             </div>
         </div>
 
         <!-- Points to JPY Converter Section -->
-        <div id="jpyConversionSection" class="content-section">
-            <div class="container">
-                <h2>Points to JPY Converter</h2>
-                
-                <div class="converter-section">
-                    <div class="input-group">
-                        <label for="pointsInputJPY">Enter Points:</label>
-                        <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0">
-                    </div>
-                    <div class="input-group">
-                        <label for="deductionPercentage">Deduction Percentage (%):</label>
-                        <input type="number" id="deductionPercentage" value="0" min="0" max="100">
-                    </div>
-                    
-                    <div class="currency-output" id="currencyOutputJPY">
-                        Enter points to see JPY value
-                    </div>
+        <div id="jpyConversionSection" class="content-section container">
+            <h2 data-i18n="jpyConverterTitle">Points to JPY Converter</h2>
+            
+            <div class="converter-section">
+                <div class="input-group">
+                    <label for="pointsInputJPY" data-i18n="enterPointsLabel">Enter Points:</label>
+                    <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0">
                 </div>
+                <div class="input-group">
+                    <label for="deductionPercentage" data-i18n="deductionPercentageLabel">Deduction Percentage (%):</label>
+                    <input type="number" id="deductionPercentage" value="0" min="0" max="100">
+                </div>
+                
+                <div class="currency-output" id="currencyOutputJPY">
+                    <span data-i18n="enterPointsJPY">Enter points to see JPY value</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settingsSection" class="content-section container">
+            <h2 data-i18n="settingsTitle">Settings</h2>
+            
+            <div class="settings-option">
+                <label for="languageSelect" data-i18n="languageLabel">Language</label>
+                <select id="languageSelect" class="language-select">
+                    <option value="en">English</option>
+                    <option value="ko">한국어</option>
+                    <option value="ja">日本語</option>
+                </select>
+            </div>
+
+            <div class="settings-option">
+                <label for="darkModeSelect" data-i18n="darkModeLabel">Dark Mode</label>
+                <select id="darkModeSelect" class="dark-mode-select">
+                    <option value="auto" data-i18n="darkModeAuto">Auto (device setting)</option>
+                    <option value="on" data-i18n="darkModeOn">On</option>
+                    <option value="off" data-i18n="darkModeOff">Off</option>
+                </select>
+            </div>
+
+            <div class="settings-option" id="darkModeColorSchemeOption">
+                <label for="darkModeColorSchemeSelect" data-i18n="darkModeColorSchemeLabel">Dark Mode Color</label>
+                <select id="darkModeColorSchemeSelect" class="dark-mode-color-select">
+                    <option value="royalGreen" data-i18n="colorRoyalGreen">Royal Green</option>
+                    <option value="deepBlue" data-i18n="colorDeepBlue">Deep Blue</option>
+                    <option value="charcoalGrey" data-i18n="colorCharcoalGrey">Charcoal Grey</option>
+                    <option value="pitchBlack" data-i18n="colorPitchBlack">Pitch Black</option>
+                </select>
             </div>
         </div>
     </div>
@@ -539,7 +834,7 @@
         let counter = 0; // This will represent the currently displayed counter value
         let vndSessionCounter = 0; // Separate counter for VND sessions
         let jpySessionCounter = 0; // Separate counter for JPY sessions
-        let currentCounterCurrency = 'VND'; // 'VND' or 'JPY'
+        let currentCounterCurrency = localStorage.getItem('selectedCurrency') || 'VND'; // Load saved currency or default to VND
         let firebaseInitialized = false; // Flag to track Firebase initialization
 
         // Debounce function for notes saving
@@ -552,6 +847,187 @@
             };
         }
 
+        // Translation object
+        const translations = {
+            en: {
+                appTitle: "Counter & Points Converter",
+                menuCounter: "Counter & History",
+                menuVNDConversion: "VND Conversion",
+                menuJPYConversion: "JPY Conversion",
+                menuSettings: "Settings", // This will be the text for the menu item
+                menuSettingsText: "Settings", // This will be the text next to the icon
+                pachiTitle: "Pachi",
+                counterTitle: "Counter",
+                resetCounterButton: "Reset Session Counter",
+                saveSessionButton: "Save Session",
+                sessionHistoryTitle: "Session History",
+                removeHistoryButton: "Remove Checked History",
+                loadingHistory: "Loading history...",
+                noHistory: "No session history available.",
+                errorLoadingHistory: "Error loading history. Please try again. Check console for details.",
+                enterPointsLabel: "Enter Points:",
+                enterPointsVND: "Enter points to see VND value",
+                vndConverterTitle: "Points to VND Converter",
+                jpyConverterTitle: "Points to JPY Converter",
+                deductionPercentageLabel: "Deduction Percentage (%):",
+                enterPointsJPY: "Enter points to see JPY value",
+                settingsTitle: "Settings",
+                darkModeLabel: "Dark Mode",
+                darkModeAuto: "Auto (device setting)",
+                darkModeOn: "On",
+                darkModeOff: "Off",
+                darkModeColorSchemeLabel: "Dark Mode Color",
+                colorRoyalGreen: "Royal Green",
+                colorDeepBlue: "Deep Blue",
+                colorCharcoalGrey: "Charcoal Grey",
+                colorPitchBlack: "Pitch Black",
+                languageLabel: "Language",
+                points: "Points",
+                saved: "Saved",
+                straight: "Straight",
+                afterDeduction: "After Deduction",
+                firebaseInitLoading: "Please wait, initializing Firebase and loading history...",
+                firebaseInitError: "Error initializing Firebase. This might be due to missing or incorrect Firebase configuration. History will not be saved.",
+                firebaseConfigMessage: "History will be saved to your configured Firebase project.",
+                vndShort: "VND",
+                jpyShort: "JPY"
+            },
+            ko: {
+                appTitle: "카운터 & 포인트 변환기",
+                menuCounter: "카운터 & 기록",
+                menuVNDConversion: "VND 변환",
+                menuJPYConversion: "JPY 변환",
+                menuSettings: "설정",
+                menuSettingsText: "설정",
+                pachiTitle: "파치",
+                counterTitle: "카운터",
+                resetCounterButton: "세션 카운터 초기화",
+                saveSessionButton: "세션 저장",
+                sessionHistoryTitle: "세션 기록",
+                removeHistoryButton: "선택된 기록 삭제",
+                loadingHistory: "기록 불러오는 중...",
+                noHistory: "세션 기록이 없습니다.",
+                errorLoadingHistory: "기록 불러오기 오류. 다시 시도해 주세요. 콘솔을 확인하세요.",
+                enterPointsLabel: "포인트 입력:",
+                enterPointsVND: "VND 값을 보려면 포인트를 입력하세요",
+                vndConverterTitle: "포인트-VND 변환기",
+                jpyConverterTitle: "포인트-JPY 변환기",
+                deductionPercentageLabel: "공제율 (%):",
+                enterPointsJPY: "JPY 값을 보려면 포인트를 입력하세요",
+                settingsTitle: "설정",
+                darkModeLabel: "다크 모드",
+                darkModeAuto: "자동 (기기 설정)",
+                darkModeOn: "켜짐",
+                darkModeOff: "꺼짐",
+                darkModeColorSchemeLabel: "다크 모드 색상",
+                colorRoyalGreen: "로얄 그린",
+                colorDeepBlue: "딥 블루",
+                colorCharcoalGrey: "차콜 그레이",
+                colorPitchBlack: "피치 블랙",
+                languageLabel: "언어",
+                points: "포인트",
+                saved: "저장됨",
+                straight: "직접",
+                afterDeduction: "공제 후",
+                firebaseInitLoading: "잠시 기다려 주세요. Firebase 초기화 및 기록 로드 중...",
+                firebaseInitError: "Firebase 초기화 오류. Firebase 구성이 누락되었거나 잘못되었을 수 있습니다. 기록이 저장되지 않습니다.",
+                firebaseConfigMessage: "기록은 구성된 Firebase 프로젝트에 저장됩니다.",
+                vndShort: "VND",
+                jpyShort: "JPY"
+            },
+            ja: {
+                appTitle: "カウンター＆ポイント変換",
+                menuCounter: "カウンター＆履歴",
+                menuVNDConversion: "VND変換",
+                menuJPYConversion: "JPY変換",
+                menuSettings: "設定",
+                menuSettingsText: "設定",
+                pachiTitle: "パチ",
+                counterTitle: "カウンター",
+                resetCounterButton: "セッションカウンターをリセット",
+                saveSessionButton: "セッションを保存",
+                sessionHistoryTitle: "セッション履歴",
+                removeHistoryButton: "チェックされた履歴を削除",
+                loadingHistory: "履歴を読み込み中...",
+                noHistory: "セッション履歴がありません。",
+                errorLoadingHistory: "履歴の読み込みエラー。もう一度お試しください。コンソールを確認してください。",
+                enterPointsLabel: "ポイントを入力:",
+                enterPointsVND: "VND値を見るにはポイントを入力してください",
+                vndConverterTitle: "ポイントからVNDへの変換",
+                jpyConverterTitle: "ポイントからJPYへの変換",
+                deductionPercentageLabel: "控除率 (%):",
+                enterPointsJPY: "JPY値を見るにはポイントを入力してください",
+                settingsTitle: "設定",
+                darkModeLabel: "ダークモード",
+                darkModeAuto: "自動 (デバイス設定)",
+                darkModeOn: "オン",
+                darkModeOff: "オフ",
+                darkModeColorSchemeLabel: "ダークモードの色",
+                colorRoyalGreen: "ロイヤルグリーン",
+                colorDeepBlue: "ディープブルー",
+                colorCharcoalGrey: "チャコールグレー",
+                colorPitchBlack: "ピッチブラック",
+                languageLabel: "言語",
+                points: "ポイント",
+                saved: "保存済み",
+                straight: "直接",
+                afterDeduction: "控除後",
+                firebaseInitLoading: "お待ちください。Firebaseの初期化と履歴の読み込み中...",
+                firebaseInitError: "Firebaseの初期化エラー。Firebaseの設定が不足しているか、正しくない可能性があります。履歴は保存されません。",
+                firebaseConfigMessage: "履歴は設定されたFirebaseプロジェクトに保存されます。",
+                vndShort: "VND",
+                jpyShort: "JPY"
+            }
+        };
+
+        // Dark mode color schemes
+        const darkModeColors = {
+            royalGreen: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+            deepBlue: 'linear-gradient(135deg, #1a2a40 0%, #2a3a50 100%)',
+            charcoalGrey: 'linear-gradient(135deg, #222222 0%, #333333 100%)', /* Darker charcoal */
+            pitchBlack: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)' /* Pitch Black */
+        };
+
+        let currentLanguage = localStorage.getItem('language') || 'en'; // Load saved language or default to English
+
+        function applyTranslations(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+            // Update specific elements that might not use data-i18n easily
+            document.querySelector('title').textContent = translations[lang].appTitle;
+            // Update options in dark mode color select
+            const darkModeColorSchemeSelect = document.getElementById('darkModeColorSchemeSelect');
+            if (darkModeColorSchemeSelect) {
+                Array.from(darkModeColorSchemeSelect.options).forEach(option => {
+                    const key = option.getAttribute('data-i18n');
+                    if (translations[lang] && translations[lang][key]) {
+                        option.textContent = translations[lang][key];
+                    }
+                });
+            }
+
+            // Re-render history to apply language changes to dynamic content
+            if (firebaseInitialized && userId && db) {
+                loadSessionHistory();
+            } else {
+                 // Update initial loading/error messages if Firebase isn't ready yet
+                const historyListElement = document.getElementById('sessionHistoryList');
+                if (!firebaseInitialized) {
+                    historyListElement.innerHTML = `<p>${translations[lang].firebaseInitLoading}</p>`;
+                } else if (!userId || !db) {
+                    historyListElement.innerHTML = `<p>${translations[lang].firebaseInitError}</p>`;
+                }
+            }
+        }
+
         // Function to initialize Firebase
         async function initializeFirebase() {
             console.log("Attempting to initialize Firebase...");
@@ -562,7 +1038,7 @@
                     console.log("Firebase config loaded from __firebase_config.");
                 } catch (e) {
                     console.error("Error parsing __firebase_config:", e);
-                    document.getElementById('sessionHistoryList').innerHTML = '<p>Error: Invalid Firebase configuration provided. Please check the format.</p>';
+                    document.getElementById('sessionHistoryList').innerHTML = `<p>${translations[currentLanguage].firebaseInitError}</p>`;
                     return; // Stop initialization if config is bad
                 }
             } else {
@@ -577,7 +1053,7 @@
                     appId: "1:921460524528:web:488defd44091bc55d8c935",
                     measurementId: "G-XDZPGE5WJ5"
                 };
-                document.getElementById('sessionHistoryList').innerHTML = '<p>History will be saved to your configured Firebase project.</p>';
+                document.getElementById('sessionHistoryList').innerHTML = `<p>${translations[currentLanguage].firebaseConfigMessage}</p>`;
             }
 
             try {
@@ -614,7 +1090,7 @@
                 });
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
-                document.getElementById('sessionHistoryList').innerHTML = '<p>Error initializing Firebase. This might be due to missing or incorrect Firebase configuration. History will not be saved.</p>';
+                document.getElementById('sessionHistoryList').innerHTML = `<p>${translations[currentLanguage].firebaseInitError}</p>`;
                 // Set firebaseInitialized to false if initialization fails, so Firestore operations are skipped.
                 firebaseInitialized = false;
             }
@@ -625,7 +1101,7 @@
             const historyListElement = document.getElementById('sessionHistoryList');
             // Only show loading message if Firebase is not yet initialized or userId is not set
             if (!firebaseInitialized || !userId || !db) { // Check for all prerequisites
-                historyListElement.innerHTML = '<p>Please wait, initializing Firebase and loading history...</p>';
+                historyListElement.innerHTML = `<p>${translations[currentLanguage].firebaseInitLoading}</p>`;
                 console.log("loadSessionHistory called before Firebase/User initialized. State:", { firebaseInitialized, userId: !!userId, db: !!db });
                 return; // Exit if not ready
             }
@@ -658,7 +1134,7 @@
 
             } catch (e) {
                 console.error("Error loading session history:", e);
-                historyListElement.innerHTML = '<p>Error loading history. Please try again. Check console for details.</p>';
+                historyListElement.innerHTML = `<p>${translations[currentLanguage].errorLoadingHistory}</p>`;
             }
         }
 
@@ -738,7 +1214,7 @@
             historyListElement.innerHTML = ''; // Clear previous history
 
             if (history.length === 0) {
-                historyListElement.innerHTML = '<p>No session history available.</p>';
+                historyListElement.innerHTML = `<p>${translations[currentLanguage].noHistory}</p>`;
                 return;
             }
 
@@ -766,7 +1242,7 @@
                 const date = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleString() : 'N/A';
                 const datetimeSpan = document.createElement('span');
                 datetimeSpan.classList.add('history-datetime');
-                datetimeSpan.textContent = `Saved: ${date}`;
+                datetimeSpan.textContent = `${translations[currentLanguage].saved}: ${date}`;
                 historyLineDiv.appendChild(datetimeSpan);
 
                 const detailsSpan = document.createElement('span');
@@ -783,14 +1259,14 @@
                     currencyDisplay = `VND: ${formatCurrency(item.convertedVND, 'VND')} / JPY: ${formatCurrency(item.convertedJPY, 'JPY')}`;
                 }
 
-                detailsSpan.textContent = `Points: ${item.points} | ${currencyDisplay}`;
+                detailsSpan.textContent = `${translations[currentLanguage].points}: ${item.points} | ${currencyDisplay}`;
                 historyLineDiv.appendChild(detailsSpan);
                 contentDiv.appendChild(historyLineDiv);
 
                 // Notes Textbox
                 const notesTextbox = document.createElement('textarea');
                 notesTextbox.classList.add('history-notes-textbox');
-                notesTextbox.placeholder = 'Add notes here...';
+                notesTextbox.placeholder = translations[currentLanguage].notesPlaceholder || 'Add notes here...'; // Placeholder for notes
                 notesTextbox.value = item.notes || ''; // Populate with existing notes
                 notesTextbox.dataset.sessionId = item.id; // Store session ID for saving
                 notesTextbox.addEventListener('input', (event) => {
@@ -888,6 +1364,8 @@
 
         function setCounterCurrency(currency) {
             currentCounterCurrency = currency;
+            localStorage.setItem('selectedCurrency', currency); // Save selected currency
+
             // Update the main counter display to reflect the selected currency's specific counter
             if (currentCounterCurrency === 'VND') {
                 counter = vndSessionCounter;
@@ -896,12 +1374,24 @@
             }
             document.getElementById('counter').textContent = counter; // Update main counter display
             updateCounterCurrencyDisplay();
-            // Update button styles
-            document.getElementById('toggleVND').classList.remove('active');
-            document.getElementById('toggleJPY').classList.remove('active');
-            document.getElementById(`toggle${currency}`).classList.add('active');
-            // No need to reload history here, displayHistory already uses currencyAtSave
-            // loadSessionHistory(); // This was causing issues by re-fetching and re-rendering
+            
+            // Update sidebar toggle active state
+            const sidebarToggleVND = document.getElementById('sidebarToggleVND');
+            const sidebarToggleJPY = document.getElementById('sidebarToggleJPY');
+            const sidebarCurrencyToggleDiv = document.getElementById('sidebarCurrencyToggle');
+
+            if (currency === 'VND') {
+                sidebarToggleVND.classList.add('active');
+                sidebarToggleJPY.classList.remove('active');
+                sidebarCurrencyToggleDiv.classList.remove('jpy-active');
+            } else {
+                sidebarToggleVND.classList.remove('active');
+                sidebarToggleJPY.classList.add('active');
+                sidebarCurrencyToggleDiv.classList.add('jpy-active');
+            }
+
+            updateMenuCurrencyVisibility(); // Call new function to update menu visibility
+            showSection('counterSection'); // Always go back to counter page after currency selection
         }
 
         function updateCounterCurrencyDisplay() {
@@ -927,7 +1417,7 @@
             const points = parseFloat(pointsInput.value) || 0;
             
             if (points === 0) {
-                currencyOutput.textContent = 'Enter points to see VND value';
+                currencyOutput.textContent = translations[currentLanguage].enterPointsVND;
                 return;
             }
             
@@ -946,7 +1436,7 @@
             const deductionPercentage = parseFloat(deductionInput.value) || 0;
             
             if (points === 0) {
-                currencyOutput.innerHTML = 'Enter points to see JPY value';
+                currencyOutput.innerHTML = `<span data-i18n="enterPointsJPY">${translations[currentLanguage].enterPointsJPY}</span>`;
                 return;
             }
             
@@ -958,7 +1448,62 @@
             const formattedJPY = formatCurrency(jpyValue, 'JPY');
             const formattedDeductedJPY = formatCurrency(deductedValue, 'JPY');
             
-            currencyOutput.innerHTML = `<div>Straight: ${formattedJPY}</div><div>After Deduction: ${formattedDeductedJPY}</div>`;
+            currencyOutput.innerHTML = `<div>${translations[currentLanguage].straight}: ${formattedJPY}</div><div>${translations[currentLanguage].afterDeduction}: ${formattedDeductedJPY}</div>`;
+        }
+
+        // --- Dark Mode Logic ---
+        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function applySystemDarkMode() {
+            const darkModeColor = localStorage.getItem('darkModeColorScheme') || 'royalGreen';
+            if (darkModeMediaQuery.matches) {
+                document.body.classList.add('dark-mode');
+                document.body.style.background = darkModeColors[darkModeColor];
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.style.background = ''; // Reset to default light mode background
+            }
+            updateDarkModeColorOptionVisibility();
+        }
+
+        function setDarkModePreference(preference) {
+            localStorage.setItem('darkModePreference', preference);
+            // Remove previous listener to avoid multiple listeners
+            darkModeMediaQuery.removeEventListener('change', applySystemDarkMode); 
+
+            const darkModeColor = localStorage.getItem('darkModeColorScheme') || 'royalGreen';
+
+            if (preference === 'auto') {
+                applySystemDarkMode(); // Apply current system setting
+                darkModeMediaQuery.addEventListener('change', applySystemDarkMode); // Listen for future system changes
+            } else if (preference === 'on') {
+                document.body.classList.add('dark-mode');
+                document.body.style.background = darkModeColors[darkModeColor];
+            } else { // preference === 'off'
+                document.body.classList.remove('dark-mode');
+                document.body.style.background = ''; // Reset to default light mode background
+            }
+            document.getElementById('darkModeSelect').value = preference;
+            updateDarkModeColorOptionVisibility();
+        }
+
+        function setDarkModeColorScheme(colorScheme) {
+            localStorage.setItem('darkModeColorScheme', colorScheme);
+            const currentPreference = localStorage.getItem('darkModePreference') || 'auto';
+            if (currentPreference === 'on' || (currentPreference === 'auto' && darkModeMediaQuery.matches)) {
+                document.body.style.background = darkModeColors[colorScheme];
+            }
+            document.getElementById('darkModeColorSchemeSelect').value = colorScheme;
+        }
+
+        function updateDarkModeColorOptionVisibility() {
+            const darkModeColorSchemeOption = document.getElementById('darkModeColorSchemeOption');
+            const currentPreference = localStorage.getItem('darkModePreference') || 'auto';
+            if (currentPreference === 'on' || (currentPreference === 'auto' && darkModeMediaQuery.matches)) {
+                darkModeColorSchemeOption.style.display = 'flex';
+            } else {
+                darkModeColorSchemeOption.style.display = 'none';
+            }
         }
 
         // --- Menu and Content Switching Logic ---
@@ -979,6 +1524,8 @@
                 document.getElementById('menuVNDConversion').classList.add('active');
             } else if (sectionId === 'jpyConversionSection') {
                 document.getElementById('menuJPYConversion').classList.add('active');
+            } else if (sectionId === 'settingsSection') {
+                document.getElementById('menuSettings').classList.add('active');
             }
 
             // Close sidebar after selection
@@ -987,8 +1534,42 @@
             document.body.classList.remove('sidebar-open');
         }
 
+        // Function to update visibility of currency conversion menu items
+        function updateMenuCurrencyVisibility() {
+            const menuVND = document.getElementById('menuVNDConversion');
+            const menuJPY = document.getElementById('menuJPYConversion');
+
+            if (currentCounterCurrency === 'VND') {
+                menuVND.style.display = 'flex'; // Show VND
+                menuJPY.style.display = 'none'; // Hide JPY
+            } else { // JPY
+                menuVND.style.display = 'none'; // Hide VND
+                menuJPY.style.display = 'flex'; // Show JPY
+            }
+        }
+
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Apply initial dark mode state
+            const savedDarkModePreference = localStorage.getItem('darkModePreference') || 'auto'; // Default to auto
+            const savedDarkModeColor = localStorage.getItem('darkModeColorScheme') || 'royalGreen'; // Default color
+            setDarkModePreference(savedDarkModePreference);
+            setDarkModeColorScheme(savedDarkModeColor); // Apply color after preference
+
+            // Apply initial language
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage && translations[savedLanguage]) {
+                currentLanguage = savedLanguage;
+                document.getElementById('languageSelect').value = savedLanguage;
+            } else {
+                currentLanguage = 'en'; // Default to English
+                document.getElementById('languageSelect').value = 'en';
+            }
+            applyTranslations(currentLanguage);
+
+            // Initialize currency toggle and menu visibility based on saved preference
+            setCounterCurrency(currentCounterCurrency); // This will also call updateMenuCurrencyVisibility
+
             // Menu Toggle
             document.getElementById('menuIcon').addEventListener('click', () => {
                 const sidebar = document.getElementById('sidebar');
@@ -1000,16 +1581,21 @@
 
             // Menu Item Clicks
             document.getElementById('menuCounter').addEventListener('click', () => showSection('counterSection'));
-            document.getElementById('menuVNDConversion').addEventListener('click', () => showSection('vndConversionSection'));
-            document.getElementById('menuJPYConversion').addEventListener('click', () => showSection('jpyConversionSection'));
+            document.getElementById('menuVNDConversion').addEventListener('click', () => {
+                showSection('vndConversionSection');
+                convertPointsVND(); // Recalculate on section switch
+            });
+            document.getElementById('menuJPYConversion').addEventListener('click', () => {
+                showSection('jpyConversionSection');
+                convertPointsJPY(); // Recalculate on section switch
+            });
+            document.getElementById('menuSettings').addEventListener('click', () => showSection('settingsSection'));
 
-            // Initial section display
-            showSection('counterSection'); // Show Counter & History by default
-
-            // Counter Buttons
-            document.getElementById('toggleVND').addEventListener('click', () => setCounterCurrency('VND'));
-            document.getElementById('toggleJPY').addEventListener('click', () => setCounterCurrency('JPY'));
+            // Sidebar Currency Toggle
+            document.getElementById('sidebarToggleVND').addEventListener('click', () => setCounterCurrency('VND'));
+            document.getElementById('sidebarToggleJPY').addEventListener('click', () => setCounterCurrency('JPY'));
             
+            // Counter Buttons
             document.getElementById('increment1').addEventListener('click', () => incrementCounter(1));
             document.getElementById('increment5').addEventListener('click', () => incrementCounter(5));
             document.getElementById('increment10').addEventListener('click', () => incrementCounter(10));
@@ -1037,6 +1623,21 @@
                 if (e.key === 'Enter') {
                     convertPointsJPY();
                 }
+            });
+
+            // Settings Event Listeners
+            document.getElementById('darkModeSelect').addEventListener('change', (event) => {
+                setDarkModePreference(event.target.value);
+            });
+
+            document.getElementById('darkModeColorSchemeSelect').addEventListener('change', (event) => {
+                setDarkModeColorScheme(event.target.value);
+            });
+
+            document.getElementById('languageSelect').addEventListener('change', (event) => {
+                currentLanguage = event.target.value;
+                localStorage.setItem('language', currentLanguage);
+                applyTranslations(currentLanguage);
             });
         });
 
