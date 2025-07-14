@@ -262,7 +262,7 @@
             gap: 10px; /* Space between the two lines */
         }
 
-        .reset-button, .save-button, .remove-history-button {
+        .reset-button, .save-button, .remove-history-button, .save-winnings-button {
             padding: 10px 20px;
             background: #dc3545;
             color: white;
@@ -271,15 +271,18 @@
             cursor: pointer;
             font-size: 1rem;
             transition: background 0.3s ease;
+            margin-top: 10px; /* Default margin-top for these buttons */
         }
         .save-button {
             background: #28a745; /* Green for save */
-            margin-top: 10px; /* Space between reset and save */
         }
         .remove-history-button {
             background: #ffc107; /* Warning yellow for remove */
             color: #333;
-            margin-top: 10px;
+        }
+        .save-winnings-button {
+            background: #007bff; /* Blue for save winnings */
+            margin-top: 20px; /* More space for this button */
         }
 
         .reset-button:hover {
@@ -290,6 +293,9 @@
         }
         .remove-history-button:hover {
             background: #e0a800;
+        }
+        .save-winnings-button:hover {
+            background: #0056b3;
         }
 
 
@@ -325,6 +331,7 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
             max-height: 300px; /* Scrollable history */
             overflow-y: auto;
+            margin-top: 20px; /* Space above history list */
         }
 
         .history-item {
@@ -627,6 +634,166 @@
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6.8%200-13.2%203.6-16.4%209.6-3.2%206-3.2%2012.4%200%2018.4l128%20128c3.2%203.2%207.2%204.8%2011.2%204.8s8-1.6%2011.2-4.8l128-128c3.2-6%203.2-12.4%200-18.4z%22%2F%3E%3C%2Fsvg%3E'); /* White arrow for dark mode */
         }
 
+        /* Numpad styles */
+        .numpad-container {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px; /* Align with input field */
+            margin-left: auto;
+            margin-right: auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        body.dark-mode .numpad-container {
+            background: rgba(44, 62, 80, 0.9);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .numpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .numpad-button {
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #eee;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .numpad-button:hover {
+            background: #ddd;
+            transform: translateY(-1px);
+        }
+
+        .numpad-button:active {
+            background: #ccc;
+            transform: translateY(0);
+        }
+
+        .numpad-button.action-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            grid-column: span 1; /* Ensure action buttons take one column */
+        }
+        .numpad-button.action-button:hover {
+            background: linear-gradient(135deg, #5a6ed1, #6b4093);
+        }
+
+        .numpad-button.clear-button {
+            background: #dc3545;
+            color: white;
+        }
+        .numpad-button.clear-button:hover {
+            background: #c82333;
+        }
+
+        .numpad-button.delete-button {
+            background: #ffc107;
+            color: #333;
+        }
+        .numpad-button.delete-button:hover {
+            background: #e0a800;
+        }
+
+        body.dark-mode .numpad-button {
+            background: #34495e;
+            color: #ecf0f1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        body.dark-mode .numpad-button:hover {
+            background: #4a647c;
+        }
+        body.dark-mode .numpad-button.action-button {
+            background: linear-gradient(135deg, #4a5d8f, #5d4a8f);
+        }
+        body.dark-mode .numpad-button.action-button:hover {
+            background: linear-gradient(135deg, #5c70a1, #705c9f);
+        }
+        body.dark-mode .numpad-button.clear-button {
+            background: #a73545;
+        }
+        body.dark-mode .numpad-button.clear-button:hover {
+            background: #b82333;
+        }
+        body.dark-mode .numpad-button.delete-button {
+            background: #cc9900;
+            color: #ecf0f1;
+        }
+        body.dark-mode .numpad-button.delete-button:hover {
+            background: #e0a800;
+        }
+
+        /* Deduction Percentage Selector Styles */
+        .deduction-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the selector horizontally */
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 300px; /* Match input width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .deduction-button {
+            padding: 8px 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+        }
+        .deduction-button:hover {
+            background: #5a6ed1;
+        }
+        .deduction-button:active {
+            transform: translateY(1px);
+        }
+
+        .deduction-value-display {
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            min-width: 80px; /* Ensure enough space for value */
+            text-align: center;
+            flex-grow: 1; /* Allow display to grow */
+        }
+
+        body.dark-mode .deduction-button {
+            background: #4a5d8f;
+        }
+        body.dark-mode .deduction-button:hover {
+            background: #5c70a1;
+        }
+        body.dark-mode .deduction-value-display {
+            background: #34495e;
+            border-color: #4a647c;
+            color: #ecf0f1;
+        }
+
 
         @media (max-width: 480px) {
             .counter-main-section {
@@ -704,6 +871,7 @@
         <div class="sidebar-menu-item" id="menuCounter" data-i18n="menuCounter">Counter & History</div>
         <div class="sidebar-menu-item" id="menuVNDConversion" data-i18n="menuVNDConversion">VND Conversion</div>
         <div class="sidebar-menu-item" id="menuJPYConversion" data-i18n="menuJPYConversion">JPY Conversion</div>
+        <div class="sidebar-menu-item" id="menuWinningsHistory" data-i18n="menuWinningsHistory">Winnings History</div>
         
         <div class="sidebar-menu-item" id="menuSettings">
             <!-- Cogwheel Icon SVG -->
@@ -755,12 +923,31 @@
             <div class="converter-section">
                 <div class="input-group">
                     <label for="pointsInputVND" data-i18n="enterPointsLabel">Enter Points:</label>
-                    <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0">
+                    <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0" inputmode="none">
                 </div>
                 
                 <div class="currency-output" id="currencyOutputVND">
                     <span data-i18n="enterPointsVND">Enter points to see VND value</span>
                 </div>
+
+                <!-- Numpad for VND Converter -->
+                <div class="numpad-container" id="numpadVND">
+                    <div class="numpad-grid">
+                        <button class="numpad-button">1</button>
+                        <button class="numpad-button">2</button>
+                        <button class="numpad-button">3</button>
+                        <button class="numpad-button">4</button>
+                        <button class="numpad-button">5</button>
+                        <button class="numpad-button">6</button>
+                        <button class="numpad-button">7</button>
+                        <button class="numpad-button">8</button>
+                        <button class="numpad-button">9</button>
+                        <button class="numpad-button clear-button" data-action="clear">C</button>
+                        <button class="numpad-button">0</button>
+                        <button class="numpad-button delete-button" data-action="delete">DEL</button>
+                    </div>
+                </div>
+                <button class="save-winnings-button" id="saveWinningsVND" data-i18n="saveWinningsButton">Save Winnings</button>
             </div>
         </div>
 
@@ -771,16 +958,51 @@
             <div class="converter-section">
                 <div class="input-group">
                     <label for="pointsInputJPY" data-i18n="enterPointsLabel">Enter Points:</label>
-                    <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0">
+                    <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0" inputmode="none">
                 </div>
                 <div class="input-group">
                     <label for="deductionPercentage" data-i18n="deductionPercentageLabel">Deduction Percentage (%):</label>
-                    <input type="number" id="deductionPercentage" value="0" min="0" max="100">
+                    <!-- Replaced input with custom selector -->
+                    <div class="deduction-selector">
+                        <button class="deduction-button" data-action="decrement-1">-1%</button>
+                        <button class="deduction-button" data-action="decrement-01">-0.1%</button>
+                        <div class="deduction-value-display" id="deductionPercentageDisplay">10.0%</div>
+                        <button class="deduction-button" data-action="increment-01">+0.1%</button>
+                        <button class="deduction-button" data-action="increment-1">+1%</button>
+                    </div>
                 </div>
                 
                 <div class="currency-output" id="currencyOutputJPY">
                     <span data-i18n="enterPointsJPY">Enter points to see JPY value</span>
                 </div>
+
+                <!-- Numpad for JPY Converter -->
+                <div class="numpad-container" id="numpadJPY">
+                    <div class="numpad-grid">
+                        <button class="numpad-button">1</button>
+                        <button class="numpad-button">2</button>
+                        <button class="numpad-button">3</button>
+                        <button class="numpad-button">4</button>
+                        <button class="numpad-button">5</button>
+                        <button class="numpad-button">6</button>
+                        <button class="numpad-button">7</button>
+                        <button class="numpad-button">8</button>
+                        <button class="numpad-button">9</button>
+                        <button class="numpad-button clear-button" data-action="clear">C</button>
+                        <button class="numpad-button">0</button>
+                        <button class="numpad-button delete-button" data-action="delete">DEL</button>
+                    </div>
+                </div>
+                <button class="save-winnings-button" id="saveWinningsJPY" data-i18n="saveWinningsButton">Save Winnings</button>
+            </div>
+        </div>
+
+        <!-- Winnings History Section -->
+        <div id="winningsHistorySection" class="content-section container">
+            <h2 data-i18n="winningsHistoryTitle">Winnings History</h2>
+            <button class="remove-history-button" id="removeCheckedWinningsButton" data-i18n="removeHistoryButton">Remove Checked Winnings</button>
+            <div id="winningsHistoryList" class="history-list">
+                <p data-i18n="loadingHistory">Loading winnings history...</p>
             </div>
         </div>
 
@@ -836,6 +1058,7 @@
         let jpySessionCounter = 0; // Separate counter for JPY sessions
         let currentCounterCurrency = localStorage.getItem('selectedCurrency') || 'VND'; // Load saved currency or default to VND
         let firebaseInitialized = false; // Flag to track Firebase initialization
+        let deductionPercentageValue = parseFloat(localStorage.getItem('deductionPercentage')) || 10.0; // Default to 10.0%
 
         // Debounce function for notes saving
         function debounce(func, delay) {
@@ -854,6 +1077,7 @@
                 menuCounter: "Counter & History",
                 menuVNDConversion: "VND Conversion",
                 menuJPYConversion: "JPY Conversion",
+                menuWinningsHistory: "Winnings History", // New translation
                 menuSettings: "Settings", // This will be the text for the menu item
                 menuSettingsText: "Settings", // This will be the text next to the icon
                 pachiTitle: "Pachi",
@@ -890,13 +1114,18 @@
                 firebaseInitError: "Error initializing Firebase. This might be due to missing or incorrect Firebase configuration. History will not be saved.",
                 firebaseConfigMessage: "History will be saved to your configured Firebase project.",
                 vndShort: "VND",
-                jpyShort: "JPY"
+                jpyShort: "JPY",
+                saveWinningsButton: "Save Winnings", // New translation
+                winningsHistoryTitle: "Winnings History", // New translation
+                noWinningsHistory: "No winnings history available.", // New translation
+                notesPlaceholder: "Add notes here..." // Placeholder for notes
             },
             ko: {
                 appTitle: "카운터 & 포인트 변환기",
                 menuCounter: "카운터 & 기록",
                 menuVNDConversion: "VND 변환",
                 menuJPYConversion: "JPY 변환",
+                menuWinningsHistory: "수익 기록", // New translation
                 menuSettings: "설정",
                 menuSettingsText: "설정",
                 pachiTitle: "파치",
@@ -933,13 +1162,18 @@
                 firebaseInitError: "Firebase 초기화 오류. Firebase 구성이 누락되었거나 잘못되었을 수 있습니다. 기록이 저장되지 않습니다.",
                 firebaseConfigMessage: "기록은 구성된 Firebase 프로젝트에 저장됩니다.",
                 vndShort: "VND",
-                jpyShort: "JPY"
+                jpyShort: "JPY",
+                saveWinningsButton: "수익 저장", // New translation
+                winningsHistoryTitle: "수익 기록", // New translation
+                noWinningsHistory: "수익 기록이 없습니다.", // New translation
+                notesPlaceholder: "여기에 메모 추가..." // Placeholder for notes
             },
             ja: {
                 appTitle: "カウンター＆ポイント変換",
                 menuCounter: "カウンター＆履歴",
                 menuVNDConversion: "VND変換",
                 menuJPYConversion: "JPY変換",
+                menuWinningsHistory: "勝利履歴", // New translation
                 menuSettings: "設定",
                 menuSettingsText: "設定",
                 pachiTitle: "パチ",
@@ -976,7 +1210,11 @@
                 firebaseInitError: "Firebaseの初期化エラー。Firebaseの設定が不足しているか、正しくない可能性があります。履歴は保存されません。",
                 firebaseConfigMessage: "履歴は設定されたFirebaseプロジェクトに保存されます。",
                 vndShort: "VND",
-                jpyShort: "JPY"
+                jpyShort: "JPY",
+                saveWinningsButton: "勝利を保存", // New translation
+                winningsHistoryTitle: "勝利履歴", // New translation
+                noWinningsHistory: "勝利履歴がありません。", // New translation
+                notesPlaceholder: "ここにメモを追加..." // Placeholder for notes
             }
         };
 
@@ -1017,13 +1255,24 @@
             // Re-render history to apply language changes to dynamic content
             if (firebaseInitialized && userId && db) {
                 loadSessionHistory();
+                loadWinningsHistory(); // Also reload winnings history
             } else {
                  // Update initial loading/error messages if Firebase isn't ready yet
                 const historyListElement = document.getElementById('sessionHistoryList');
-                if (!firebaseInitialized) {
-                    historyListElement.innerHTML = `<p>${translations[lang].firebaseInitLoading}</p>`;
-                } else if (!userId || !db) {
-                    historyListElement.innerHTML = `<p>${translations[lang].firebaseInitError}</p>`;
+                if (historyListElement) {
+                    if (!firebaseInitialized) {
+                        historyListElement.innerHTML = `<p>${translations[lang].firebaseInitLoading}</p>`;
+                    } else if (!userId || !db) {
+                        historyListElement.innerHTML = `<p>${translations[lang].firebaseInitError}</p>`;
+                    }
+                }
+                const winningsHistoryListElement = document.getElementById('winningsHistoryList');
+                if (winningsHistoryListElement) {
+                    if (!firebaseInitialized) {
+                        winningsHistoryListElement.innerHTML = `<p>${translations[lang].firebaseInitLoading}</p>`;
+                    } else if (!userId || !db) {
+                        winningsHistoryListElement.innerHTML = `<p>${translations[lang].firebaseInitError}</p>`;
+                    }
                 }
             }
         }
@@ -1069,6 +1318,7 @@
                         firebaseInitialized = true; // Set flag once user is confirmed
                         // Now that Firebase is ready and user is authenticated, load data
                         await loadSessionHistory();
+                        await loadWinningsHistory(); // Load winnings history too
                         updateCounterCurrencyDisplay();
                         setCounterCurrency(currentCounterCurrency); // Ensure correct button is active and counter value is set
                     } else {
@@ -1101,7 +1351,9 @@
             const historyListElement = document.getElementById('sessionHistoryList');
             // Only show loading message if Firebase is not yet initialized or userId is not set
             if (!firebaseInitialized || !userId || !db) { // Check for all prerequisites
-                historyListElement.innerHTML = `<p>${translations[currentLanguage].firebaseInitLoading}</p>`;
+                if (historyListElement) {
+                    historyListElement.innerHTML = `<p>${translations[currentLanguage].firebaseInitLoading}</p>`;
+                }
                 console.log("loadSessionHistory called before Firebase/User initialized. State:", { firebaseInitialized, userId: !!userId, db: !!db });
                 return; // Exit if not ready
             }
@@ -1129,14 +1381,59 @@
                     return tsA - tsB;
                 });
 
-                displayHistory(history); // This handles empty history by showing "No session history available."
+                displayHistory(history, 'sessionHistoryList', 'history-checkbox', updateSessionNote); // This handles empty history by showing "No session history available."
                 console.log("Session history loaded successfully.");
 
             } catch (e) {
                 console.error("Error loading session history:", e);
-                historyListElement.innerHTML = `<p>${translations[currentLanguage].errorLoadingHistory}</p>`;
+                if (historyListElement) {
+                    historyListElement.innerHTML = `<p>${translations[currentLanguage].errorLoadingHistory}</p>`;
+                }
             }
         }
+
+        // Function to load winnings history from Firestore
+        async function loadWinningsHistory() {
+            const winningsHistoryListElement = document.getElementById('winningsHistoryList');
+            if (!firebaseInitialized || !userId || !db) {
+                if (winningsHistoryListElement) {
+                    winningsHistoryListElement.innerHTML = `<p>${translations[currentLanguage].firebaseInitLoading}</p>`;
+                }
+                console.log("loadWinningsHistory called before Firebase/User initialized. State:", { firebaseInitialized, userId: !!userId, db: !!db });
+                return;
+            }
+            console.log("Loading winnings history...");
+
+            const winningsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoWinnings`);
+            const q = query(winningsCollectionRef);
+
+            try {
+                const querySnapshot = await getDocs(q);
+                let winnings = [];
+                querySnapshot.forEach((doc) => {
+                    winnings.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                winnings.sort((a, b) => {
+                    const tsA = a.timestamp ? a.timestamp.toDate().getTime() : 0;
+                    const tsB = b.timestamp ? b.timestamp.toDate().getTime() : 0;
+                    return tsA - tsB;
+                });
+
+                displayHistory(winnings, 'winningsHistoryList', 'winnings-checkbox', updateWinningsNote);
+                console.log("Winnings history loaded successfully.");
+
+            } catch (e) {
+                console.error("Error loading winnings history:", e);
+                if (winningsHistoryListElement) {
+                    winningsHistoryListElement.innerHTML = `<p>${translations[currentLanguage].errorLoadingHistory}</p>`;
+                }
+            }
+        }
+
 
         // Function to save the current session to Firestore
         async function saveSession() {
@@ -1186,6 +1483,64 @@
             }
         }
 
+        // Function to save current converter value as winnings
+        async function saveWinnings(currencyType) {
+            if (!userId) {
+                console.warn("User not authenticated yet. Cannot save winnings.");
+                return;
+            }
+            if (!firebaseInitialized || !db) {
+                console.warn("Firebase not fully initialized. Cannot save winnings.");
+                return;
+            }
+
+            let points = 0;
+            let convertedAmount = 0;
+            let currencySymbol = '';
+
+            if (currencyType === 'VND') {
+                points = parseFloat(document.getElementById('pointsInputVND').value) || 0;
+                convertedAmount = (points / 2000) * 500000;
+                currencySymbol = 'VND';
+            } else if (currencyType === 'JPY') {
+                points = parseFloat(document.getElementById('pointsInputJPY').value) || 0;
+                const jpyValue = points * 4;
+                convertedAmount = jpyValue * (1 - (deductionPercentageValue / 100));
+                currencySymbol = 'JPY';
+            }
+
+            if (points === 0) {
+                console.log("Cannot save winnings for 0 points.");
+                return;
+            }
+
+            const winningsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoWinnings`);
+
+            try {
+                await addDoc(winningsCollectionRef, {
+                    timestamp: serverTimestamp(),
+                    points: points,
+                    convertedAmount: convertedAmount,
+                    currencyType: currencySymbol,
+                    deductionPercentage: currencyType === 'JPY' ? deductionPercentageValue : null, // Save deduction for JPY
+                    notes: "" // Initialize notes field as empty
+                });
+                console.log(`Winnings saved successfully for ${currencyType}!`);
+                // Clear the input field after saving winnings
+                if (currencyType === 'VND') {
+                    document.getElementById('pointsInputVND').value = '';
+                    convertPointsVND(); // Update display
+                } else if (currencyType === 'JPY') {
+                    document.getElementById('pointsInputJPY').value = '';
+                    convertPointsJPY(); // Update display
+                }
+                loadWinningsHistory(); // Reload winnings history to show the new entry
+            } catch (e) {
+                console.error("Error saving winnings:", e);
+            }
+        }
+
+
         // Function to update a specific session's notes in Firestore
         const updateSessionNote = debounce(async (sessionId, noteText) => {
             if (!userId) {
@@ -1208,24 +1563,46 @@
             }
         }, 500); // Debounce by 500ms
 
-        // Function to display history
-        function displayHistory(history) {
-            const historyListElement = document.getElementById('sessionHistoryList');
-            historyListElement.innerHTML = ''; // Clear previous history
+        // Function to update a specific winnings entry's notes in Firestore
+        const updateWinningsNote = debounce(async (winningsId, noteText) => {
+            if (!userId) {
+                console.warn("User not authenticated. Cannot update winnings note.");
+                return;
+            }
+            if (!db) {
+                console.warn("Firestore not initialized.");
+                return;
+            }
+
+            const winningsDocRef = doc(db, `artifacts/${appId}/users/${userId}/pachinkoWinnings/${winningsId}`);
+            try {
+                await updateDoc(winningsDocRef, {
+                    notes: noteText
+                });
+                console.log(`Note for winnings ${winningsId} updated.`);
+            } catch (e) {
+                console.error(`Error updating note for winnings ${winningsId}:`, e);
+            }
+        }, 500); // Debounce by 500ms
+
+        // Function to display history (generalized for sessions and winnings)
+        function displayHistory(history, listElementId, checkboxClass, updateNoteFunction) {
+            const listElement = document.getElementById(listElementId);
+            listElement.innerHTML = ''; // Clear previous history
 
             if (history.length === 0) {
-                historyListElement.innerHTML = `<p>${translations[currentLanguage].noHistory}</p>`;
+                listElement.innerHTML = `<p>${listElementId === 'sessionHistoryList' ? translations[currentLanguage].noHistory : translations[currentLanguage].noWinningsHistory}</p>`;
                 return;
             }
 
             history.forEach((item, index) => {
                 const historyItemDiv = document.createElement('div');
                 historyItemDiv.classList.add('history-item');
-                historyItemDiv.dataset.sessionId = item.id; // Store session ID on the div
+                historyItemDiv.dataset.itemId = item.id; // Use generic itemId
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.classList.add('history-checkbox');
+                checkbox.classList.add(checkboxClass); // Use dynamic class
                 historyItemDiv.appendChild(checkbox);
                 
                 const contentDiv = document.createElement('div');
@@ -1249,69 +1626,79 @@
                 detailsSpan.classList.add('history-details');
                 
                 let currencyDisplay = '';
-                // Display currency based on the currencyAtSave property of the item
-                if (item.currencyAtSave === 'VND') {
-                    currencyDisplay = formatCurrency(item.convertedVND, 'VND');
-                } else if (item.currencyAtSave === 'JPY') {
-                    currencyDisplay = formatCurrency(item.convertedJPY, 'JPY');
-                } else {
-                    // Fallback if currencyAtSave is missing or unexpected
-                    currencyDisplay = `VND: ${formatCurrency(item.convertedVND, 'VND')} / JPY: ${formatCurrency(item.convertedJPY, 'JPY')}`;
+                if (listElementId === 'sessionHistoryList') {
+                    // Logic for session history
+                    if (item.currencyAtSave === 'VND') {
+                        currencyDisplay = formatCurrency(item.convertedVND, 'VND');
+                    } else if (item.currencyAtSave === 'JPY') {
+                        currencyDisplay = formatCurrency(item.convertedJPY, 'JPY');
+                    } else {
+                        currencyDisplay = `VND: ${formatCurrency(item.convertedVND, 'VND')} / JPY: ${formatCurrency(item.convertedJPY, 'JPY')}`;
+                    }
+                    detailsSpan.textContent = `${translations[currentLanguage].points}: ${item.points} | ${currencyDisplay}`;
+                } else if (listElementId === 'winningsHistoryList') {
+                    // Logic for winnings history
+                    let convertedFormatted = formatCurrency(item.convertedAmount, item.currencyType);
+                    let deductionInfo = item.deductionPercentage !== null ? ` (${item.deductionPercentage.toFixed(1)}% ded.)` : '';
+                    detailsSpan.textContent = `${translations[currentLanguage].points}: ${item.points} | ${convertedFormatted}${deductionInfo}`;
                 }
-
-                detailsSpan.textContent = `${translations[currentLanguage].points}: ${item.points} | ${currencyDisplay}`;
+                
                 historyLineDiv.appendChild(detailsSpan);
                 contentDiv.appendChild(historyLineDiv);
 
                 // Notes Textbox
                 const notesTextbox = document.createElement('textarea');
                 notesTextbox.classList.add('history-notes-textbox');
-                notesTextbox.placeholder = translations[currentLanguage].notesPlaceholder || 'Add notes here...'; // Placeholder for notes
+                notesTextbox.placeholder = translations[currentLanguage].notesPlaceholder;
                 notesTextbox.value = item.notes || ''; // Populate with existing notes
-                notesTextbox.dataset.sessionId = item.id; // Store session ID for saving
+                notesTextbox.dataset.itemId = item.id; // Store item ID for saving
                 notesTextbox.addEventListener('input', (event) => {
-                    updateSessionNote(event.target.dataset.sessionId, event.target.value);
+                    updateNoteFunction(event.target.dataset.itemId, event.target.value);
                 });
                 contentDiv.appendChild(notesTextbox);
 
                 historyItemDiv.appendChild(contentDiv);
-                historyListElement.appendChild(historyItemDiv);
+                listElement.appendChild(historyItemDiv);
             });
         }
 
-        // Function to remove checked history items
-        async function removeCheckedHistory() {
+        // Function to remove checked history items (generalized)
+        async function removeCheckedItems(listElementId, checkboxClass, collectionName) {
             if (!userId) {
-                console.warn("User not authenticated. Cannot remove history.");
+                console.warn("User not authenticated. Cannot remove items.");
                 return;
             }
             if (!firebaseInitialized || !db) {
-                console.warn("Firebase not fully initialized. Cannot remove history.");
+                console.warn("Firebase not fully initialized. Cannot remove items.");
                 return;
             }
 
-            const checkedItems = document.querySelectorAll('.history-checkbox:checked');
+            const checkedItems = document.querySelectorAll(`.${checkboxClass}:checked`);
             if (checkedItems.length === 0) {
-                console.log("No history items checked for removal.");
+                console.log("No items checked for removal.");
                 return;
             }
 
             const deletePromises = [];
             checkedItems.forEach(checkbox => {
-                const sessionId = checkbox.closest('.history-item').dataset.sessionId;
-                if (sessionId) {
-                    const docRef = doc(db, `artifacts/${appId}/users/${userId}/pachinkoSessions/${sessionId}`);
+                const itemId = checkbox.closest('.history-item').dataset.itemId;
+                if (itemId) {
+                    const docRef = doc(db, `artifacts/${appId}/users/${userId}/${collectionName}/${itemId}`);
                     deletePromises.push(deleteDoc(docRef));
-                    console.log(`Attempting to delete session: ${sessionId}`); // Debug log
+                    console.log(`Attempting to delete item: ${itemId} from ${collectionName}`); // Debug log
                 }
             });
 
             try {
                 await Promise.all(deletePromises);
-                console.log("Selected history items removed successfully!");
-                loadSessionHistory(); // Reload history to update the display
+                console.log("Selected items removed successfully!");
+                if (collectionName === 'pachinkoSessions') {
+                    loadSessionHistory(); // Reload session history
+                } else if (collectionName === 'pachinkoWinnings') {
+                    loadWinningsHistory(); // Reload winnings history
+                }
             } catch (e) {
-                console.error("Error removing history items:", e);
+                console.error("Error removing items:", e);
             }
         }
 
@@ -1429,11 +1816,11 @@
 
         function convertPointsJPY() {
             const pointsInput = document.getElementById('pointsInputJPY');
-            const deductionInput = document.getElementById('deductionPercentage');
             const currencyOutput = document.getElementById('currencyOutputJPY');
             
             const points = parseFloat(pointsInput.value) || 0;
-            const deductionPercentage = parseFloat(deductionInput.value) || 0;
+            // Use the global deductionPercentageValue
+            const deductionPercentage = deductionPercentageValue; 
             
             if (points === 0) {
                 currencyOutput.innerHTML = `<span data-i18n="enterPointsJPY">${translations[currentLanguage].enterPointsJPY}</span>`;
@@ -1524,6 +1911,9 @@
                 document.getElementById('menuVNDConversion').classList.add('active');
             } else if (sectionId === 'jpyConversionSection') {
                 document.getElementById('menuJPYConversion').classList.add('active');
+            } else if (sectionId === 'winningsHistorySection') { // New section
+                document.getElementById('menuWinningsHistory').classList.add('active');
+                loadWinningsHistory(); // Load history when tab is opened
             } else if (sectionId === 'settingsSection') {
                 document.getElementById('menuSettings').classList.add('active');
             }
@@ -1548,6 +1938,55 @@
             }
         }
 
+        // Numpad logic
+        function setupNumpad(numpadId, inputId, convertFunction) {
+            const numpad = document.getElementById(numpadId);
+            const inputField = document.getElementById(inputId);
+
+            numpad.addEventListener('click', (event) => {
+                const button = event.target.closest('.numpad-button');
+                if (!button) return;
+
+                const action = button.dataset.action;
+                const value = button.textContent;
+
+                if (action === 'clear') {
+                    inputField.value = '';
+                } else if (action === 'delete') {
+                    inputField.value = inputField.value.slice(0, -1);
+                } else { // Number button
+                    inputField.value += value;
+                }
+                convertFunction(); // Recalculate after each input
+            });
+
+            // Prevent software keyboard from appearing on focus
+            inputField.addEventListener('focus', (event) => {
+                event.target.blur();
+            });
+        }
+
+        // Deduction Percentage Selector Logic
+        function updateDeductionDisplay() {
+            const display = document.getElementById('deductionPercentageDisplay');
+            if (display) { // Check if element exists before updating
+                display.textContent = deductionPercentageValue.toFixed(1) + '%';
+            }
+            convertPointsJPY(); // Recalculate JPY conversion with new deduction
+        }
+
+        function adjustDeduction(step) {
+            deductionPercentageValue = parseFloat((deductionPercentageValue + step).toFixed(1));
+            if (deductionPercentageValue < 0) {
+                deductionPercentageValue = 0;
+            } else if (deductionPercentageValue > 25) {
+                deductionPercentageValue = 25;
+            }
+            localStorage.setItem('deductionPercentage', deductionPercentageValue);
+            updateDeductionDisplay();
+        }
+
+
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
             // Apply initial dark mode state
@@ -1570,6 +2009,9 @@
             // Initialize currency toggle and menu visibility based on saved preference
             setCounterCurrency(currentCounterCurrency); // This will also call updateMenuCurrencyVisibility
 
+            // Initialize deduction percentage display
+            updateDeductionDisplay();
+
             // Menu Toggle
             document.getElementById('menuIcon').addEventListener('click', () => {
                 const sidebar = document.getElementById('sidebar');
@@ -1589,6 +2031,7 @@
                 showSection('jpyConversionSection');
                 convertPointsJPY(); // Recalculate on section switch
             });
+            document.getElementById('menuWinningsHistory').addEventListener('click', () => showSection('winningsHistorySection')); // New menu item
             document.getElementById('menuSettings').addEventListener('click', () => showSection('settingsSection'));
 
             // Sidebar Currency Toggle
@@ -1601,29 +2044,24 @@
             document.getElementById('increment10').addEventListener('click', () => incrementCounter(10));
             document.getElementById('resetCounterButton').addEventListener('click', resetCounter);
             document.getElementById('saveSessionButton').addEventListener('click', saveSession); 
-            document.getElementById('removeCheckedHistoryButton').addEventListener('click', removeCheckedHistory);
+            document.getElementById('removeCheckedHistoryButton').addEventListener('click', () => removeCheckedItems('sessionHistoryList', 'history-checkbox', 'pachinkoSessions'));
 
-            // Converter Inputs
-            document.getElementById('pointsInputVND').addEventListener('input', convertPointsVND);
-            document.getElementById('pointsInputVND').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    convertPointsVND();
-                }
-            });
+            // Setup Numpads
+            setupNumpad('numpadVND', 'pointsInputVND', convertPointsVND);
+            setupNumpad('numpadJPY', 'pointsInputJPY', convertPointsJPY);
 
-            document.getElementById('pointsInputJPY').addEventListener('input', convertPointsJPY);
-            document.getElementById('pointsInputJPY').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    convertPointsJPY();
-                }
-            });
+            // Save Winnings Buttons
+            document.getElementById('saveWinningsVND').addEventListener('click', () => saveWinnings('VND'));
+            document.getElementById('saveWinningsJPY').addEventListener('click', () => saveWinnings('JPY'));
+            document.getElementById('removeCheckedWinningsButton').addEventListener('click', () => removeCheckedItems('winningsHistoryList', 'winnings-checkbox', 'pachinkoWinnings'));
 
-            document.getElementById('deductionPercentage').addEventListener('input', convertPointsJPY);
-            document.getElementById('deductionPercentage').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    convertPointsJPY();
-                }
-            });
+
+            // Deduction Percentage Buttons
+            document.querySelector('.deduction-selector [data-action="decrement-1"]').addEventListener('click', () => adjustDeduction(-1));
+            document.querySelector('.deduction-selector [data-action="decrement-01"]').addEventListener('click', () => adjustDeduction(-0.1));
+            document.querySelector('.deduction-selector [data-action="increment-01"]').addEventListener('click', () => adjustDeduction(0.1));
+            document.querySelector('.deduction-selector [data-action="increment-1"]').addEventListener('click', () => adjustDeduction(1));
+
 
             // Settings Event Listeners
             document.getElementById('darkModeSelect').addEventListener('change', (event) => {
