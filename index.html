@@ -391,9 +391,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, getDocs, serverTimestamp, addDoc, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, getDocs, serverTimestamp, addDoc, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
         // Global variables for Firebase
         let app;
@@ -421,8 +421,32 @@
 
         // Function to initialize Firebase
         async function initializeFirebase() {
-            console.log("Initializing Firebase...");
-            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            console.log("Attempting to initialize Firebase...");
+            let firebaseConfig = {};
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                try {
+                    firebaseConfig = JSON.parse(__firebase_config);
+                    console.log("Firebase config loaded from __firebase_config.");
+                } catch (e) {
+                    console.error("Error parsing __firebase_config:", e);
+                    document.getElementById('sessionHistoryList').innerHTML = '<p>Error: Invalid Firebase configuration provided. Please check the format.</p>';
+                    return; // Stop initialization if config is bad
+                }
+            } else {
+                console.warn("No __firebase_config found. Using provided Firebase config for persistent history.");
+                // YOUR PROVIDED FIREBASE CONFIG
+                firebaseConfig = {
+                    apiKey: "AIzaSyAsI2M572ZMGRcopIduikPRTjlBj4Zv5WI",
+                    authDomain: "pachi-app-f2228.firebaseapp.com",
+                    projectId: "pachi-app-f2228",
+                    storageBucket: "pachi-app-f2228.firebasestorage.app",
+                    messagingSenderId: "921460524528",
+                    appId: "1:921460524528:web:488defd44091bc55d8c935",
+                    measurementId: "G-XDZPGE5WJ5"
+                };
+                document.getElementById('sessionHistoryList').innerHTML = '<p>History will be saved to your configured Firebase project.</p>';
+            }
+
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -457,7 +481,9 @@
                 });
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
-                document.getElementById('sessionHistoryList').innerHTML = '<p>Error initializing Firebase. Please check your configuration and try again.</p>';
+                document.getElementById('sessionHistoryList').innerHTML = '<p>Error initializing Firebase. This might be due to missing or incorrect Firebase configuration. History will not be saved.</p>';
+                // Set firebaseInitialized to false if initialization fails, so Firestore operations are skipped.
+                firebaseInitialized = false;
             }
         }
 
@@ -507,6 +533,10 @@
         async function saveSession() {
             if (!userId) {
                 console.warn("User not authenticated yet. Cannot save session.");
+                return;
+            }
+            if (!firebaseInitialized || !db) {
+                console.warn("Firebase not fully initialized. Cannot save session.");
                 return;
             }
 
@@ -644,6 +674,10 @@
         async function removeCheckedHistory() {
             if (!userId) {
                 console.warn("User not authenticated. Cannot remove history.");
+                return;
+            }
+            if (!firebaseInitialized || !db) {
+                console.warn("Firebase not fully initialized. Cannot remove history.");
                 return;
             }
 
