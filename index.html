@@ -403,8 +403,11 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Counter and currency state
-        let counter = 0; // Current session points
+        let counter = 0; // This will represent the currently displayed counter value
+        let vndSessionCounter = 0; // Separate counter for VND sessions
+        let jpySessionCounter = 0; // Separate counter for JPY sessions
         let currentCounterCurrency = 'VND'; // 'VND' or 'JPY'
+        let firebaseInitialized = false; // Flag to track Firebase initialization
 
         // Debounce function for notes saving
         function debounce(func, delay) {
@@ -427,17 +430,18 @@
                 if (user) {
                     userId = user.uid;
                     console.log("User ID:", userId);
-                    await loadSessionHistory(); // Load session history
-                    updateCounterCurrencyDisplay(); // Update display based on initial state
-                    setCounterCurrency(currentCounterCurrency); // Set initial button active state
+                    firebaseInitialized = true; // Set flag
+                    // Now that Firebase is ready and user is authenticated, load data
+                    await loadSessionHistory();
+                    updateCounterCurrencyDisplay();
+                    setCounterCurrency(currentCounterCurrency); // Ensure correct button is active and counter value is set
                 } else {
-                    // Sign in anonymously if no user is found or __initial_auth_token is not available
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         try {
                             await signInWithCustomToken(auth, __initial_auth_token);
                         } catch (error) {
                             console.error("Error signing in with custom token:", error);
-                            await signInAnonymously(auth); // Fallback to anonymous
+                            await signInAnonymously(auth);
                         }
                     } else {
                         await signInAnonymously(auth);
@@ -449,12 +453,10 @@
         // Function to load session history from Firestore
         async function loadSessionHistory() {
             const historyListElement = document.getElementById('sessionHistoryList');
-            historyListElement.innerHTML = '<p>Loading history...</p>'; // Ensure loading message is always set initially
-
-            if (!userId || !db) { // Check if userId and db are available
-                console.warn("Firebase or User ID not initialized. Waiting to load history.");
-                historyListElement.innerHTML = '<p>Please wait, initializing Firebase...</p>'; // More specific message
-                return;
+            // Only show loading message if Firebase is not yet initialized or userId is not set
+            if (!firebaseInitialized || !userId) {
+                historyListElement.innerHTML = '<p>Please wait, initializing Firebase and loading history...</p>';
+                return; // Exit if not ready
             }
 
             const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
@@ -494,6 +496,7 @@
                 return;
             }
 
+            // Use the currently displayed counter value for saving
             if (counter === 0) {
                 console.log("Cannot save an empty session.");
                 return; // Prevent saving empty sessions
@@ -649,13 +652,24 @@
         }
 
         function incrementCounter(value) {
-            counter += value;
+            if (currentCounterCurrency === 'VND') {
+                vndSessionCounter += value;
+                counter = vndSessionCounter; // Update the displayed counter
+            } else { // JPY
+                jpySessionCounter += value;
+                counter = jpySessionCounter; // Update the displayed counter
+            }
             document.getElementById('counter').textContent = counter;
             updateCounterCurrencyDisplay();
         }
 
         function resetCounter() {
-            counter = 0;
+            if (currentCounterCurrency === 'VND') {
+                vndSessionCounter = 0;
+            } else { // JPY
+                jpySessionCounter = 0;
+            }
+            counter = 0; // Reset the displayed counter to 0
             document.getElementById('counter').textContent = counter;
             updateCounterCurrencyDisplay(); // Update converted value to 0
         }
@@ -686,12 +700,20 @@
 
         function setCounterCurrency(currency) {
             currentCounterCurrency = currency;
+            // Update the main counter display to reflect the selected currency's specific counter
+            if (currentCounterCurrency === 'VND') {
+                counter = vndSessionCounter;
+            } else { // JPY
+                counter = jpySessionCounter;
+            }
+            document.getElementById('counter').textContent = counter; // Update main counter display
             updateCounterCurrencyDisplay();
             // Update button styles
             document.getElementById('toggleVND').classList.remove('active');
             document.getElementById('toggleJPY').classList.remove('active');
             document.getElementById(`toggle${currency}`).classList.add('active');
-            loadSessionHistory(); // Reload history to reflect the selected currency view
+            // No need to reload history here, displayHistory already uses currencyAtSave
+            // loadSessionHistory(); // This was causing issues by re-fetching and re-rendering
         }
 
         function updateCounterCurrencyDisplay() {
