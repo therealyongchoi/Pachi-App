@@ -421,43 +421,56 @@
 
         // Function to initialize Firebase
         async function initializeFirebase() {
+            console.log("Initializing Firebase...");
             const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                console.log("Firebase app and Firestore initialized.");
 
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    console.log("User ID:", userId);
-                    firebaseInitialized = true; // Set flag
-                    // Now that Firebase is ready and user is authenticated, load data
-                    await loadSessionHistory();
-                    updateCounterCurrencyDisplay();
-                    setCounterCurrency(currentCounterCurrency); // Ensure correct button is active and counter value is set
-                } else {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        try {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } catch (error) {
-                            console.error("Error signing in with custom token:", error);
-                            await signInAnonymously(auth);
-                        }
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated. User ID:", userId);
+                        firebaseInitialized = true; // Set flag once user is confirmed
+                        // Now that Firebase is ready and user is authenticated, load data
+                        await loadSessionHistory();
+                        updateCounterCurrencyDisplay();
+                        setCounterCurrency(currentCounterCurrency); // Ensure correct button is active and counter value is set
                     } else {
-                        await signInAnonymously(auth);
+                        console.log("No user authenticated. Attempting anonymous sign-in or custom token sign-in.");
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            try {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                                console.log("Signed in with custom token.");
+                            } catch (error) {
+                                console.error("Error signing in with custom token:", error);
+                                await signInAnonymously(auth);
+                                console.log("Signed in anonymously (fallback).");
+                            }
+                        } else {
+                            await signInAnonymously(auth);
+                            console.log("Signed in anonymously.");
+                        }
                     }
-                }
-            });
+                });
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                document.getElementById('sessionHistoryList').innerHTML = '<p>Error initializing Firebase. Please check your configuration and try again.</p>';
+            }
         }
 
         // Function to load session history from Firestore
         async function loadSessionHistory() {
             const historyListElement = document.getElementById('sessionHistoryList');
             // Only show loading message if Firebase is not yet initialized or userId is not set
-            if (!firebaseInitialized || !userId) {
+            if (!firebaseInitialized || !userId || !db) { // Check for all prerequisites
                 historyListElement.innerHTML = '<p>Please wait, initializing Firebase and loading history...</p>';
+                console.log("loadSessionHistory called before Firebase/User initialized. State:", { firebaseInitialized, userId: !!userId, db: !!db });
                 return; // Exit if not ready
             }
+            console.log("Loading session history...");
 
             const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
             // Removed orderBy from query to avoid potential index issues in some environments.
@@ -482,6 +495,7 @@
                 });
 
                 displayHistory(history); // This handles empty history by showing "No session history available."
+                console.log("Session history loaded successfully.");
 
             } catch (e) {
                 console.error("Error loading session history:", e);
@@ -497,7 +511,14 @@
             }
 
             // Use the currently displayed counter value for saving
-            if (counter === 0) {
+            let pointsToSave = 0;
+            if (currentCounterCurrency === 'VND') {
+                pointsToSave = vndSessionCounter;
+            } else { // JPY
+                pointsToSave = jpySessionCounter;
+            }
+
+            if (pointsToSave === 0) {
                 console.log("Cannot save an empty session.");
                 return; // Prevent saving empty sessions
             }
@@ -505,13 +526,13 @@
             const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
 
             // Calculate converted values for both VND and JPY based on current counter
-            const convertedVND = counter * 500000; // 1 point = 500,000 VND
-            const convertedJPY = counter * 1000;   // 1 point = 1,000 JPY
+            const convertedVND = pointsToSave * 500000; // 1 point = 500,000 VND
+            const convertedJPY = pointsToSave * 1000;   // 1 point = 1,000 JPY
 
             try {
                 await addDoc(sessionCollectionRef, {
                     timestamp: serverTimestamp(),
-                    points: counter,
+                    points: pointsToSave,
                     currencyAtSave: currentCounterCurrency, // Record which currency was active when saved
                     convertedVND: convertedVND,
                     convertedJPY: convertedJPY,
@@ -519,7 +540,7 @@
                 });
                 console.log("Session saved successfully!");
                 // Optionally reset the counter after saving
-                resetCounter();
+                resetCounter(); // This will reset the currently active counter
                 loadSessionHistory(); // Reload history to show the new entry
             } catch (e) {
                 console.error("Error saving session:", e);
