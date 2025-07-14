@@ -76,6 +76,20 @@
             border: 2px solid rgba(102, 126, 234, 0.2);
         }
 
+        /* Style for the converted counter value display */
+        .currency-counter-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+            padding: 15px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(40, 167, 69, 0.2);
+            min-width: 100px;
+            text-align: center;
+        }
+
         .counter-button {
             font-size: 1.5rem;
             padding: 15px 30px;
@@ -149,7 +163,7 @@
             gap: 10px; /* Space between the two lines */
         }
 
-        .reset-button {
+        .reset-button, .save-button, .remove-history-button {
             padding: 10px 20px;
             background: #dc3545;
             color: white;
@@ -157,12 +171,127 @@
             border-radius: 25px;
             cursor: pointer;
             font-size: 1rem;
-            /* No margin-left needed here, as it will be centered below */
             transition: background 0.3s ease;
+        }
+        .save-button {
+            background: #28a745; /* Green for save */
+            margin-top: 10px; /* Space between reset and save */
+        }
+        .remove-history-button {
+            background: #ffc107; /* Warning yellow for remove */
+            color: #333;
+            margin-top: 10px;
         }
 
         .reset-button:hover {
             background: #c82333;
+        }
+        .save-button:hover {
+            background: #218838;
+        }
+        .remove-history-button:hover {
+            background: #e0a800;
+        }
+
+
+        /* New styles for currency toggle buttons */
+        .currency-toggle-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .currency-toggle-button {
+            padding: 10px 20px;
+            background: #ccc;
+            color: #333;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .currency-toggle-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* History list styles */
+        .history-list {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            max-height: 300px; /* Scrollable history */
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: flex-start; /* Align checkbox and line content vertically */
+            gap: 10px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item input[type="checkbox"] {
+            transform: scale(1.2); /* Make checkbox slightly larger */
+            flex-shrink: 0; /* Prevent checkbox from shrinking */
+            margin-top: 5px; /* Align with the first line of text */
+        }
+
+        .history-item-content {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allow the content to take available space */
+        }
+
+        .history-item-line {
+            display: flex;
+            justify-content: space-between; /* Space out items in the line */
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 5px 15px; /* Vertical and horizontal gap */
+            margin-bottom: 5px; /* Space between line and notes */
+        }
+
+        .history-number {
+            font-weight: bold;
+            color: #555;
+            flex-shrink: 0; /* Prevent number from shrinking */
+        }
+
+        .history-datetime {
+            color: #777;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .history-details {
+            font-weight: 600;
+            color: #333;
+            text-align: right; /* Align details to the right within its space */
+            flex-grow: 1; /* Allow details to take remaining space */
+            white-space: nowrap; /* Keep details on one line if possible */
+            overflow: hidden; /* Hide overflow if too long */
+            text-overflow: ellipsis; /* Add ellipsis for overflow */
+        }
+
+        .history-notes-textbox {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 40px; /* Minimum height for notes */
+            margin-top: 5px; /* Space between details and notes */
         }
 
         @media (max-width: 480px) {
@@ -182,6 +311,15 @@
             h1 {
                 font-size: 1.5rem;
             }
+
+            .history-item-line {
+                flex-direction: column; /* Stack elements vertically on small screens */
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .history-details {
+                text-align: left; /* Align details to left on small screens */
+            }
         }
     </style>
 </head>
@@ -191,15 +329,22 @@
         
         <div class="counter-main-section">
             <h2>Counter</h2>
+
+            <div class="currency-toggle-row">
+                <button class="currency-toggle-button" id="toggleVND">VND</button>
+                <button class="currency-toggle-button" id="toggleJPY">JPY</button>
+            </div>
         
             <div class="counter-display" id="counter">0</div>
             
             <div class="counter-buttons-row">
-                <button class="counter-button" onclick="incrementCounter(1)">+1</button>
-                <button class="counter-button" onclick="incrementCounter(5)">+5</button>
-                <button class="counter-button" onclick="incrementCounter(10)">+10</button>
+                <button class="counter-button" id="increment1">+1</button>
+                <button class="counter-button" id="increment5">+5</button>
+                <button class="counter-button" id="increment10">+10</button>
             </div>
-            <button class="reset-button" onclick="resetCounter()">Reset</button>
+            <button class="reset-button" id="resetCounterButton">Reset Session Counter</button>
+            <button class="save-button" id="saveSessionButton">Save Session</button>
+            <div class="currency-counter-display" id="convertedCounterValue">0 VND</div>
         </div>
     </div>
 
@@ -209,7 +354,7 @@
         <div class="converter-section">
             <div class="input-group">
                 <label for="pointsInputVND">Enter Points:</label>
-                <input type="number" id="pointsInputVND" placeholder="Enter points..." oninput="convertPointsVND()" min="0">
+                <input type="number" id="pointsInputVND" placeholder="Enter points..." min="0">
             </div>
             
             <div class="currency-output" id="currencyOutputVND">
@@ -224,11 +369,11 @@
         <div class="converter-section">
             <div class="input-group">
                 <label for="pointsInputJPY">Enter Points:</label>
-                <input type="number" id="pointsInputJPY" placeholder="Enter points..." oninput="convertPointsJPY()" min="0">
+                <input type="number" id="pointsInputJPY" placeholder="Enter points..." min="0">
             </div>
             <div class="input-group">
                 <label for="deductionPercentage">Deduction Percentage (%):</label>
-                <input type="number" id="deductionPercentage" value="0" min="0" max="100" oninput="convertPointsJPY()">
+                <input type="number" id="deductionPercentage" value="0" min="0" max="100">
             </div>
             
             <div class="currency-output" id="currencyOutputJPY">
@@ -237,29 +382,317 @@
         </div>
     </div>
 
-    <script>
-        let counter = 0;
+    <div class="container">
+        <h2>Session History</h2>
+        <button class="remove-history-button" id="removeCheckedHistoryButton">Remove Checked History</button>
+        <div id="sessionHistoryList" class="history-list">
+            <p>Loading history...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, getDocs, serverTimestamp, addDoc, orderBy, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase
+        let app;
+        let db;
+        let auth;
+        let userId;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Counter and currency state
+        let counter = 0; // Current session points
+        let currentCounterCurrency = 'VND'; // 'VND' or 'JPY'
+
+        // Debounce function for notes saving
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        // Function to initialize Firebase
+        async function initializeFirebase() {
+            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    console.log("User ID:", userId);
+                    await loadSessionHistory(); // Load session history
+                    updateCounterCurrencyDisplay(); // Update display based on initial state
+                    setCounterCurrency(currentCounterCurrency); // Set initial button active state
+                } else {
+                    // Sign in anonymously if no user is found or __initial_auth_token is not available
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        try {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } catch (error) {
+                            console.error("Error signing in with custom token:", error);
+                            await signInAnonymously(auth); // Fallback to anonymous
+                        }
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                }
+            });
+        }
+
+        // Function to load session history from Firestore
+        async function loadSessionHistory() {
+            if (!userId) return;
+
+            const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
+            // Changed order to 'asc' for chronological sorting (oldest at top, newest at bottom)
+            const q = query(sessionCollectionRef, orderBy("timestamp", "asc"));
+            
+            try {
+                const querySnapshot = await getDocs(q);
+                let history = [];
+                querySnapshot.forEach((doc) => {
+                    history.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                displayHistory(history);
+
+            } catch (e) {
+                console.error("Error loading session history:", e);
+            }
+        }
+
+        // Function to save the current session to Firestore
+        async function saveSession() {
+            if (!userId) {
+                console.warn("User not authenticated yet. Cannot save session.");
+                return;
+            }
+
+            if (counter === 0) {
+                console.log("Cannot save an empty session.");
+                return; // Prevent saving empty sessions
+            }
+
+            const sessionCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/pachinkoSessions`);
+
+            // Calculate converted values for both VND and JPY based on current counter
+            const convertedVND = counter * 500000; // 1 point = 500,000 VND
+            const convertedJPY = counter * 1000;   // 1 point = 1,000 JPY
+
+            try {
+                await addDoc(sessionCollectionRef, {
+                    timestamp: serverTimestamp(),
+                    points: counter,
+                    currencyAtSave: currentCounterCurrency, // Record which currency was active when saved
+                    convertedVND: convertedVND,
+                    convertedJPY: convertedJPY,
+                    notes: "" // Initialize notes field as empty
+                });
+                console.log("Session saved successfully!");
+                // Optionally reset the counter after saving
+                resetCounter();
+                loadSessionHistory(); // Reload history to show the new entry
+            } catch (e) {
+                console.error("Error saving session:", e);
+            }
+        }
+
+        // Function to update a specific session's notes in Firestore
+        const updateSessionNote = debounce(async (sessionId, noteText) => {
+            if (!userId) {
+                console.warn("User not authenticated. Cannot update note.");
+                return;
+            }
+            if (!db) {
+                console.warn("Firestore not initialized.");
+                return;
+            }
+
+            const sessionDocRef = doc(db, `artifacts/${appId}/users/${userId}/pachinkoSessions/${sessionId}`);
+            try {
+                await updateDoc(sessionDocRef, {
+                    notes: noteText
+                });
+                console.log(`Note for session ${sessionId} updated.`);
+            } catch (e) {
+                console.error(`Error updating note for session ${sessionId}:`, e);
+            }
+        }, 500); // Debounce by 500ms
+
+        // Function to display history
+        function displayHistory(history) {
+            const historyListElement = document.getElementById('sessionHistoryList');
+            historyListElement.innerHTML = ''; // Clear previous history
+
+            if (history.length === 0) {
+                historyListElement.innerHTML = '<p>No session history available.</p>';
+                return;
+            }
+
+            history.forEach((item, index) => {
+                const historyItemDiv = document.createElement('div');
+                historyItemDiv.classList.add('history-item');
+                historyItemDiv.dataset.sessionId = item.id; // Store session ID on the div
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.classList.add('history-checkbox');
+                historyItemDiv.appendChild(checkbox);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('history-item-content');
+
+                const historyLineDiv = document.createElement('div');
+                historyLineDiv.classList.add('history-item-line'); // Container for inline content
+
+                const numberSpan = document.createElement('span');
+                numberSpan.classList.add('history-number');
+                numberSpan.textContent = `${index + 1}.`;
+                historyLineDiv.appendChild(numberSpan);
+
+                const date = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleString() : 'N/A';
+                const datetimeSpan = document.createElement('span');
+                datetimeSpan.classList.add('history-datetime');
+                datetimeSpan.textContent = `Saved: ${date}`;
+                historyLineDiv.appendChild(datetimeSpan);
+
+                const detailsSpan = document.createElement('span');
+                detailsSpan.classList.add('history-details');
+                
+                let currencyDisplay = '';
+                // Display currency based on the currencyAtSave property of the item
+                if (item.currencyAtSave === 'VND') {
+                    currencyDisplay = formatCurrency(item.convertedVND, 'VND');
+                } else if (item.currencyAtSave === 'JPY') {
+                    currencyDisplay = formatCurrency(item.convertedJPY, 'JPY');
+                } else {
+                    // Fallback if currencyAtSave is missing or unexpected
+                    currencyDisplay = `VND: ${formatCurrency(item.convertedVND, 'VND')} / JPY: ${formatCurrency(item.convertedJPY, 'JPY')}`;
+                }
+
+                detailsSpan.textContent = `Points: ${item.points} | ${currencyDisplay}`;
+                historyLineDiv.appendChild(detailsSpan);
+                contentDiv.appendChild(historyLineDiv);
+
+                // Notes Textbox
+                const notesTextbox = document.createElement('textarea');
+                notesTextbox.classList.add('history-notes-textbox');
+                notesTextbox.placeholder = 'Add notes here...';
+                notesTextbox.value = item.notes || ''; // Populate with existing notes
+                notesTextbox.dataset.sessionId = item.id; // Store session ID for saving
+                notesTextbox.addEventListener('input', (event) => {
+                    updateSessionNote(event.target.dataset.sessionId, event.target.value);
+                });
+                contentDiv.appendChild(notesTextbox);
+
+                historyItemDiv.appendChild(contentDiv);
+                historyListElement.appendChild(historyItemDiv);
+            });
+        }
+
+        // Function to remove checked history items
+        async function removeCheckedHistory() {
+            if (!userId) {
+                console.warn("User not authenticated. Cannot remove history.");
+                return;
+            }
+
+            const checkedItems = document.querySelectorAll('.history-checkbox:checked');
+            if (checkedItems.length === 0) {
+                console.log("No history items checked for removal.");
+                return;
+            }
+
+            const deletePromises = [];
+            checkedItems.forEach(checkbox => {
+                const sessionId = checkbox.closest('.history-item').dataset.sessionId;
+                if (sessionId) {
+                    const docRef = doc(db, `artifacts/${appId}/users/${userId}/pachinkoSessions/${sessionId}`);
+                    deletePromises.push(deleteDoc(docRef));
+                    console.log(`Attempting to delete session: ${sessionId}`); // Debug log
+                }
+            });
+
+            try {
+                await Promise.all(deletePromises);
+                console.log("Selected history items removed successfully!");
+                loadSessionHistory(); // Reload history to update the display
+            } catch (e) {
+                console.error("Error removing history items:", e);
+            }
+        }
 
         function incrementCounter(value) {
             counter += value;
             document.getElementById('counter').textContent = counter;
+            updateCounterCurrencyDisplay();
         }
 
         function resetCounter() {
             counter = 0;
             document.getElementById('counter').textContent = counter;
+            updateCounterCurrencyDisplay(); // Update converted value to 0
         }
 
         function formatCurrency(value, currencySymbol) {
+            if (value === 0) return `0 ${currencySymbol}`;
+            
+            const formatter = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 2, 
+                useGrouping: true
+            });
+
             let formattedValue;
-            if (value >= 1000000) {
-                formattedValue = (value / 1000000).toFixed(1) + 'M';
-            } else if (value >= 1000) {
-                formattedValue = (value / 1000).toFixed(1) + 'K';
+            if (Math.abs(value) >= 1000000) {
+                const millions = value / 1000000;
+                formattedValue = formatter.format(millions) + 'M';
+            } else if (Math.abs(value) >= 1000) {
+                const thousands = value / 1000;
+                formattedValue = formatter.format(thousands) + 'K';
             } else {
-                formattedValue = value.toFixed(0);
+                formattedValue = formatter.format(value);
             }
+            // Remove trailing .0 if it's a whole number after formatting
+            formattedValue = formattedValue.replace(/\.0+([MK]?)$/, '$1');
             return `${formattedValue} ${currencySymbol}`;
+        }
+
+        function setCounterCurrency(currency) {
+            currentCounterCurrency = currency;
+            updateCounterCurrencyDisplay();
+            // Update button styles
+            document.getElementById('toggleVND').classList.remove('active');
+            document.getElementById('toggleJPY').classList.remove('active');
+            document.getElementById(`toggle${currency}`).classList.add('active');
+            loadSessionHistory(); // Reload history to reflect the selected currency view
+        }
+
+        function updateCounterCurrencyDisplay() {
+            const convertedCounterValueElement = document.getElementById('convertedCounterValue');
+            let value;
+            let symbol;
+
+            if (currentCounterCurrency === 'VND') {
+                // 1 point = 500,000 VND
+                value = counter * 500000;
+                symbol = 'VND';
+            } else { // JPY
+                // 1 point = 1,000 JPY
+                value = counter * 1000;
+                symbol = 'JPY';
+            }
+            convertedCounterValueElement.textContent = formatCurrency(value, symbol);
         }
 
         function convertPointsVND() {
@@ -302,24 +735,43 @@
             currencyOutput.innerHTML = `<div>Straight: ${formattedJPY}</div><div>After Deduction: ${formattedDeductedJPY}</div>`;
         }
 
-        // Allow Enter key to work in the input fields
-        document.getElementById('pointsInputVND').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                convertPointsVND();
-            }
+        // Event Listeners for Counter Buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('toggleVND').addEventListener('click', () => setCounterCurrency('VND'));
+            document.getElementById('toggleJPY').addEventListener('click', () => setCounterCurrency('JPY'));
+            
+            document.getElementById('increment1').addEventListener('click', () => incrementCounter(1));
+            document.getElementById('increment5').addEventListener('click', () => incrementCounter(5));
+            document.getElementById('increment10').addEventListener('click', () => incrementCounter(10));
+            document.getElementById('resetCounterButton').addEventListener('click', resetCounter);
+            document.getElementById('saveSessionButton').addEventListener('click', saveSession); 
+            document.getElementById('removeCheckedHistoryButton').addEventListener('click', removeCheckedHistory);
+
+            // Event Listeners for Converter Inputs
+            document.getElementById('pointsInputVND').addEventListener('input', convertPointsVND);
+            document.getElementById('pointsInputVND').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    convertPointsVND();
+                }
+            });
+
+            document.getElementById('pointsInputJPY').addEventListener('input', convertPointsJPY);
+            document.getElementById('pointsInputJPY').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    convertPointsJPY();
+                }
+            });
+
+            document.getElementById('deductionPercentage').addEventListener('input', convertPointsJPY);
+            document.getElementById('deductionPercentage').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    convertPointsJPY();
+                }
+            });
         });
 
-        document.getElementById('pointsInputJPY').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                convertPointsJPY();
-            }
-        });
-
-        document.getElementById('deductionPercentage').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                convertPointsJPY();
-            }
-        });
+        // Initialize Firebase when the window loads
+        window.onload = initializeFirebase;
     </script>
 </body>
 </html>
